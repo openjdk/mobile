@@ -172,12 +172,20 @@ AC_DEFUN([PLATFORM_EXTRACT_VARS_FROM_OS],
       VAR_OS=linux
       VAR_OS_TYPE=unix
       ;;
+    *android*)
+      VAR_OS=android
+      VAR_OS_TYPE=unix
+      ;;
     *solaris*)
       VAR_OS=solaris
       VAR_OS_TYPE=unix
       ;;
     *darwin*)
       VAR_OS=macosx
+      VAR_OS_TYPE=unix
+      ;;
+    *ios*)
+      VAR_OS=ios
       VAR_OS_TYPE=unix
       ;;
     *bsd*)
@@ -434,6 +442,9 @@ AC_DEFUN([PLATFORM_SETUP_LEGACY_VARS_HELPER],
 
   HOTSPOT_$1_OS=${OPENJDK_$1_OS}
   if test "x$OPENJDK_$1_OS" = xmacosx; then
+    HOTSPOT_$1_OS=bsd
+  fi
+  if test "x$OPENJDK_$1_OS" = xios; then
     HOTSPOT_$1_OS=bsd
   fi
   AC_SUBST(HOTSPOT_$1_OS)

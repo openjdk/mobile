@@ -39,10 +39,14 @@
 
 #include "manifest_info.h"
 
+#ifdef __APPLE__
+#ifndef TARGET_IOS
 /* Support Cocoa event loop on the main thread */
 #include <Cocoa/Cocoa.h>
 #include <objc/objc-runtime.h>
 #include <objc/objc-auto.h>
+#endif
+#endif
 
 #include <errno.h>
 #include <spawn.h>
@@ -210,6 +214,8 @@ static InvocationFunctions *GetExportedJNIFunctions() {
         preferredJVM = "client";
 #elif defined(__x86_64__)
         preferredJVM = "server";
+#elif defined(__arm64__)
+        preferredJVM = "zero";
 #else
 #error "Unknown architecture - needs definition"
 #endif
@@ -270,7 +276,7 @@ JLI_SetPreferredJVM(const char *prefJVM) {
     sPreferredJVMType = strdup(prefJVM);
 }
 
-static BOOL awtLoaded = NO;
+static jboolean awtLoaded = 0;
 static pthread_mutex_t awtLoaded_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t  awtLoaded_cv = PTHREAD_COND_INITIALIZER;
 
@@ -278,7 +284,7 @@ JNIEXPORT void JNICALL
 JLI_NotifyAWTLoaded()
 {
     pthread_mutex_lock(&awtLoaded_mutex);
-    awtLoaded = YES;
+    awtLoaded = 1;
     pthread_cond_signal(&awtLoaded_cv);
     pthread_mutex_unlock(&awtLoaded_mutex);
 }
@@ -307,6 +313,7 @@ static void *apple_main (void *arg)
     exit(main_fptr(args->argc, args->argv));
 }
 
+#ifndef TARGET_IOS
 static void dummyTimer(CFRunLoopTimerRef timer, void *info) {}
 
 static void ParkEventLoop() {
@@ -321,6 +328,7 @@ static void ParkEventLoop() {
         result = CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0e20, false);
     } while (result != kCFRunLoopRunFinished);
 }
+#endif
 
 /*
  * Mac OS X mandates that the GUI event loop run on very first thread of
@@ -351,7 +359,9 @@ static void MacOSXStartup(int argc, char *argv[]) {
         exit(1);
     }
 
+#ifndef TARGET_IOS
     ParkEventLoop();
+#endif
 }
 
 void
@@ -888,6 +898,7 @@ int
 JVMInit(InvocationFunctions* ifn, jlong threadStackSize,
                  int argc, char **argv,
                  int mode, char *what, int ret) {
+#ifndef TARGET_IOS
     if (sameThread) {
         JLI_TraceLauncher("In same thread\n");
         // need to block this thread against the main thread
@@ -918,6 +929,9 @@ JVMInit(InvocationFunctions* ifn, jlong threadStackSize,
     } else {
         return ContinueInNewThread(ifn, threadStackSize, argc, argv, mode, what, ret);
     }
+#else
+    return ContinueInNewThread(ifn, threadStackSize, argc, argv, mode, what, ret);
+#endif
 }
 
 /*

@@ -26,10 +26,16 @@
 #include "memory/resourceArea.hpp"
 #include "runtime/os.hpp"
 #include "runtime/os_perf.hpp"
+#ifdef ZERO
+#include "vm_version_ext_zero.hpp"
+#else
 #include "vm_version_ext_x86.hpp"
+#endif
 
 #ifdef __APPLE__
+#ifndef TARGET_IOS
   #import <libproc.h>
+#endif
   #include <sys/time.h>
   #include <sys/sysctl.h>
   #include <mach/mach.h>
@@ -37,7 +43,11 @@
   #include <sys/socket.h>
   #include <net/if.h>
   #include <net/if_dl.h>
+#ifndef TARGET_IOS
   #include <net/route.h>
+#else
+  #define RTM_IFINFO2 0x12
+#endif
 #endif
 
 static const double NANOS_PER_SEC = 1000000000.0;
@@ -285,6 +295,7 @@ int SystemProcessInterface::SystemProcesses::system_processes(SystemProcess** sy
   assert(system_processes != NULL, "system_processes pointer is NULL!");
   assert(no_of_sys_processes != NULL, "system_processes counter pointer is NULL!");
 #ifdef __APPLE__
+#ifndef TARGET_IOS
   pid_t* pids = NULL;
   int pid_count = 0;
   ResourceMark rm;
@@ -341,6 +352,7 @@ int SystemProcessInterface::SystemProcesses::system_processes(SystemProcess** sy
   *system_processes = next;
 
   return OS_OK;
+#endif
 #endif
   return FUNCTIONALITY_NOT_IMPLEMENTED;
 }

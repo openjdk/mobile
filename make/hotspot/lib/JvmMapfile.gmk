@@ -90,7 +90,7 @@ else ifeq ($(call isTargetOs, solaris), true)
         if ($$3 ~ /$(FILTER_SYMBOLS_PATTERN)/) print $$3; \
       }'
 
-else ifeq ($(call isTargetOs, macosx), true)
+else ifeq ($(call isTargetOs, macosx ios), true)
   # nm on macosx prints out "warning: nm: no name list" to stderr for
   # files without symbols. Hide this, even at the expense of hiding real errors.
   DUMP_SYMBOLS_CMD := $(NM) -Uj *.o 2> /dev/null
@@ -153,7 +153,7 @@ $(JVM_OUTPUTDIR)/symbols: $(SYMBOLS_SRC)
 ################################################################################
 # Finally convert the symbol list into a platform-specific mapfile
 
-ifeq ($(call isTargetOs, macosx), true)
+ifeq ($(call isTargetOs, macosx ios), true)
   # On macosx, we need to add a leading underscore
   define create-mapfile-work
 	  $(AWK) '{ if ($$0 ~ ".") { print "  _" $$0 } }'  < $^ > $@.tmp

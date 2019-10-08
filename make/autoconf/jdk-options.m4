@@ -491,8 +491,8 @@ AC_DEFUN_ONCE([JDKOPT_SETUP_STATIC_BUILD],
   if test "x$enable_static_build" = "xyes"; then
     AC_MSG_CHECKING([if static build is enabled])
     AC_MSG_RESULT([yes])
-    if test "x$OPENJDK_TARGET_OS" != "xmacosx"; then
-      AC_MSG_ERROR([--enable-static-build is only supported for macosx builds])
+    if test "x$OPENJDK_TARGET_OS" != "xmacosx" && test "x$OPENJDK_TARGET_OS" != "xios" && test "x$OPENJDK_TARGET_OS" != "xlinux"; then
+      AC_MSG_ERROR([--enable-static-build is only supported for macosx, ios and linux builds])
     fi
     STATIC_BUILD_CFLAGS="-DSTATIC_BUILD=1"
     CFLAGS_JDKLIB_EXTRA="$CFLAGS_JDKLIB_EXTRA $STATIC_BUILD_CFLAGS"

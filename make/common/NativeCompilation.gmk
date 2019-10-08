@@ -40,6 +40,12 @@ endif
 
 # get the exported symbols from mapfiles and if there
 # is no mapfile, get them from the archive
+ifeq ($(call isTargetOs, linux), true)
+  MNM = $(NM)
+else
+  MNM = $(NM) -m
+endif
+
 define GetSymbols
   $(RM) $$(@D)/$$(basename $$(@F)).symbols; \
   if [ ! -z $$($1_MAPFILE) -a -e $$($1_MAPFILE) ]; then \
@@ -53,9 +59,9 @@ define GetSymbols
         $(CUT) -d ' ' -f 3 >>  $$(@D)/$$(basename $$(@F)).symbols || true;\
   else \
     $(ECHO) "Getting symbols from nm"; \
-    $(NM) -m $$($1_TARGET) | $(GREP)  "__TEXT" | \
+    $(MNM) $$($1_TARGET) | $(GREP)  "__TEXT" | \
         $(EGREP) -v "non-external|private extern|__TEXT,__eh_frame" | \
-        $(SED) -e  's/.* //' > $$(@D)/$$(basename $$(@F)).symbols; \
+        $(SED) -e  's/.* //' > $$(@D)/$$(basename $$(@F)).symbols || true; \
   fi
 endef
 
@@ -901,7 +907,7 @@ define SetupNativeCompilationBody
               $(CD) $$($1_OUTPUT_DIR) && \
                   $$($1_OBJCOPY) --add-gnu-debuglink=$$($1_DEBUGINFO_FILES) $$($1_TARGET)
 
-        else ifeq ($(call isTargetOs, macosx), true)
+        else ifeq ($(call isTargetOs, macosx ios), true)
           $1_DEBUGINFO_FILES := \
               $$($1_OUTPUT_DIR)/$$($1_BASENAME).dSYM/Contents/Info.plist \
               $$($1_OUTPUT_DIR)/$$($1_BASENAME).dSYM/Contents/Resources/DWARF/$$($1_BASENAME)

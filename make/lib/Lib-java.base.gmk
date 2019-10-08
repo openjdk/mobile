@@ -185,8 +185,22 @@ ifeq ($(STATIC_BUILD), true)
       $(SUPPORT_OUTPUTDIR)/modules_libs/java.base/$(LIBRARY_PREFIX)verify.symbols \
       $(SUPPORT_OUTPUTDIR)/modules_libs/java.base/$(LIBRARY_PREFIX)zip.symbols \
       $(SUPPORT_OUTPUTDIR)/modules_libs/java.base/$(LIBRARY_PREFIX)jimage.symbols \
-      $(SUPPORT_OUTPUTDIR)/modules_libs/java.base/server/$(LIBRARY_PREFIX)jvm.symbols \
-      #
+
+ifeq ($(call isTargetOs, ios), true)
+# JAVA_BASE_EXPORT_SYMBOLS_SRC += \
+#      $(SUPPORT_OUTPUTDIR)/modules_libs/java.base$(OPENJDK_TARGET_CPU_LIBDIR)/jli/$(LIBRARY_PREFIX)jli.symbols
+endif
+
+  ifeq ($(call check-jvm-variant, minimal), true)
+    JAVA_BASE_EXPORT_SYMBOLS_SRC += \
+    $(SUPPORT_OUTPUTDIR)/modules_libs/java.base$(OPENJDK_TARGET_CPU_LIBDIR)/minimal/$(LIBRARY_PREFIX)jvm.symbols
+  else ifeq ($(call check-jvm-variant, client), true)
+    JAVA_BASE_EXPORT_SYMBOLS_SRC += \
+      $(SUPPORT_OUTPUTDIR)/modules_libs/java.base$(OPENJDK_TARGET_CPU_LIBDIR)/client/$(LIBRARY_PREFIX)jvm.symbols
+  else ifeq ($(call check-jvm-variant, server), true)
+     JAVA_BASE_EXPORT_SYMBOLS_SRC += \
+       $(SUPPORT_OUTPUTDIR)/modules_libs/java.base$(OPENJDK_TARGET_CPU_LIBDIR)/server/$(LIBRARY_PREFIX)jvm.symbols
+  endif
 
   JAVA_BASE_EXPORT_SYMBOL_FILE := $(SUPPORT_OUTPUTDIR)/modules_libs/java.base/java.base.symbols
 

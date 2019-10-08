@@ -30,9 +30,13 @@
 int64_t CounterGet(void);
 #define Counter2Micros(counts)    (counts)
 
+#ifndef TARGET_IOS
 /* pointer to environment */
 #include <crt_externs.h>
 #define environ (*_NSGetEnviron())
+#else
+static char **environ;
+#endif
 
 /*
  *      A collection of useful strings. One should think of these as #define
