@@ -23,6 +23,16 @@
  * questions.
  */
 
+#ifdef __APPLE__
+#include <TargetConditionals.h>
+#else
+#define TARGET_OS_IPHONE 0
+#endif
+
+#define LOCALEIDLENGTH  128
+
+#if ! TARGET_OS_IPHONE
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -32,7 +42,20 @@
 #include <SystemConfiguration/SystemConfiguration.h>
 #include <Foundation/Foundation.h>
 
-#include "java_props_macosx.h"
+#else
+
+
+#include <stdlib.h>
+#include <string.h>
+#include <sys/param.h>
+
+/* For IPhone */
+/* Objective-c Runtime headers */
+#include <objc/runtime.h>
+#include <objc/objc.h>
+#include <objc/message.h>
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreFoundation/CFlocale.h>
 
 char *getPosixLocale(int cat) {
     char *lc = setlocale(cat, NULL);
@@ -43,7 +66,40 @@ char *getPosixLocale(int cat) {
     return strdup(lc);
 }
 
-#define LOCALEIDLENGTH  128
+char *getMacOSXLocale(int cat) {
+    char localeString[LOCALEIDLENGTH];
+    // Get current user locale.
+    CFLocaleRef loc = CFLocaleCopyCurrent();
+    char *localstr;
+    if (CFStringGetCString(CFLocaleGetIdentifier(loc),
+                           localeString, LOCALEIDLENGTH,
+                           kCFStringEncodingUTF8))
+      localstr = strdup(localeString);
+    else
+      localstr =  NULL;
+
+    CFRelease(loc);
+    return (localstr);
+}
+
+#endif
+
+
+#include "java_props_macosx.h"
+#include "dlfcn.h"
+
+
+#if ! TARGET_OS_IPHONE
+
+char *getPosixLocale(int cat) {
+    char *lc = setlocale(cat, NULL);
+    if ((lc == NULL) || (strcmp(lc, "C") == 0)) {
+        lc = getenv("LANG");
+    }
+    if (lc == NULL) return NULL;
+    return strdup(lc);
+}
+
 #ifndef kCFCoreFoundationVersionNumber10_11_Max
 #define kCFCoreFoundationVersionNumber10_11_Max 1299
 #endif
@@ -473,3 +529,134 @@ void setProxyProperties(java_props_t *sProps) {
 
     CFRelease(dict);
 }
+// TARGET_OS_IPHONE
+#else
+
+PreferredToolkit getPreferredToolkit() {
+    return HToolkit;
+}
+
+int isInAquaSession() {
+    return 0;
+}
+
+/* Returns the ios version.
+ * At the time of writing "iPhone OS" version is "11.4"
+ * Returned pointer is allocated memory.
+ */
+static char* getIOSVersion() {
+
+    /* Use objective C runtime vs. objective C bracket syntax. File does
+     * not require complation with -x objective-c
+     */
+    id uidevice_class = objc_getClass("UIDevice");
+    if (uidevice_class == nil) {
+        return NULL;
+    }
+    SEL current_device_sel = sel_registerName("currentDevice");
+    Method current_device_meth = class_getClassMethod((Class)uidevice_class,
+          current_device_sel);
+    if (current_device_meth == NULL) {
+        return NULL;
+    }
+    typedef id (*send_type)(void*, SEL);
+    send_type current_device_imp = (send_type)method_getImplementation(current_device_meth);
+    if (current_device_imp == NULL) {
+        return NULL;
+    }
+    id uidevice = current_device_imp(uidevice_class, current_device_sel);
+    if (uidevice == nil) {
+        return NULL;
+    }
+
+    id os_version = ((id (*)(id, SEL))objc_msgSend)(uidevice, sel_registerName("systemVersion"));
+    if (os_version == nil) {
+        return NULL;
+    }
+
+    SEL utf8string = sel_registerName("UTF8String");
+    if (utf8string == NULL) {
+        return NULL;
+    }
+    return strdup((char*)((id (*)(id, SEL))objc_msgSend)(os_version, utf8string));
+}
+
+void setOSNameAndVersion(java_props_t *sprops) {
+    sprops->os_name = strdup("iOS");
+    // If the version returned is NULL, set the version to "5.0"
+    char *version = getIOSVersion();
+    if (version == NULL) {
+        sprops->os_version = strdup("5.0");
+    } else {
+        sprops->os_version = version;
+    }
+}
+
+
+void setProxyProperties(java_props_t *sProps) {
+}
+
+char *setupMacOSXLocale(int cat) {
+    char * ret = getMacOSXLocale(cat);
+
+    if (cat == LC_MESSAGES && ret != NULL) {
+      // How to set preferred language?
+    }
+
+    if (ret == NULL) {
+        return getPosixLocale(cat);
+    } else {
+        return ret;
+    }
+
+    return NULL;
+}
+
+// We don't want to include NSPathUtilities.h
+extern id NSHomeDirectory();
+
+/*
+ * Return the Application's Documents direcory.
+ * The char* that is returned has been allocated.
+ */
+static char *getIOSDocsDir() {
+    char *docs_dir;
+    id nshome_nsstring = NSHomeDirectory();
+    char *nshome = (char*)((id (*)(id, SEL))objc_msgSend)(nshome_nsstring,
+        sel_registerName("UTF8String"));
+    char resourcesPath[MAXPATHLEN];
+    Dl_info dlinfo;
+    dladdr(getIOSDocsDir, &dlinfo);
+
+    strncpy(resourcesPath, dlinfo.dli_fname, sizeof(resourcesPath) - 1);
+    jint i = strlen(resourcesPath);
+    while (i >= 0 && resourcesPath[i] != '/') {
+        resourcesPath[i--] = '\0';
+    }
+    if (i >= 0 && resourcesPath[i] == '/') {
+        resourcesPath[i] = '\0';
+    }
+
+    docs_dir = strndup(resourcesPath, strlen(resourcesPath));
+    return docs_dir;
+}
+
+/*
+ * Set "user_dir" to a writable directory. Currently the "Documents" directory
+ * is returned.
+ */
+void setIOSUserDir(java_props_t *sprops) {
+    sprops->user_dir = getIOSDocsDir();
+    return;
+}
+
+/*
+ * Set "user_home" to a writable directory. Currently the "Documents" directory
+ * is returned.
+ */
+void setIOSUserHome(java_props_t *sprops) {
+    sprops->user_home = getIOSDocsDir();
+    return;
+}
+
+#endif // TARGET_OS_IPHONE
