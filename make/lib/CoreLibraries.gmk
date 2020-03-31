@@ -88,7 +88,7 @@ TARGETS += $(BUILD_LIBVERIFY)
 
 LIBJAVA_CFLAGS := -DARCHPROPNAME='"$(OPENJDK_TARGET_CPU_OSARCH)"'
 
-ifeq ($(call isTargetOs, macosx), true)
+ifeq ($(call isTargetOs, macosx ios), true)
   BUILD_LIBJAVA_java_props_md.c_CFLAGS := -x objective-c
   BUILD_LIBJAVA_java_props_macosx.c_CFLAGS := -x objective-c
 endif

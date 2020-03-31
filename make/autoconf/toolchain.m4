@@ -225,7 +225,7 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETERMINE_TOOLCHAIN_TYPE],
   toolchain_var_name=VALID_TOOLCHAINS_$OPENJDK_BUILD_OS
   VALID_TOOLCHAINS=${!toolchain_var_name}
 
-  if test "x$OPENJDK_TARGET_OS" = xmacosx; then
+  if test "x$OPENJDK_TARGET_OS" = xmacosx || test "x$OPENJDK_TARGET_OS" = "xios" ; then
     if test -n "$XCODEBUILD"; then
       # On Mac OS X, default toolchain to clang after Xcode 5
       XCODE_VERSION_OUTPUT=`"$XCODEBUILD" -version 2>&1 | $HEAD -n 1`
@@ -998,11 +998,14 @@ AC_DEFUN_ONCE([TOOLCHAIN_SETUP_BUILD_COMPILERS],
 
     PATH="$OLDPATH"
 
-    TOOLCHAIN_EXTRACT_COMPILER_VERSION(BUILD_CC, [BuildC])
-    TOOLCHAIN_EXTRACT_COMPILER_VERSION(BUILD_CXX, [BuildC++])
-    TOOLCHAIN_PREPARE_FOR_VERSION_COMPARISONS([BUILD_], [OPENJDK_BUILD_], [build ])
-    TOOLCHAIN_EXTRACT_LD_VERSION(BUILD_LD, [build linker])
-    TOOLCHAIN_PREPARE_FOR_LD_VERSION_COMPARISONS([BUILD_], [OPENJDK_BUILD_])
+    # On Android, we use clang as cross-compiler, but gcc as buildC
+    if test "x$OPENJDK_TARGET_OS" != "xandroid"; then
+      TOOLCHAIN_EXTRACT_COMPILER_VERSION(BUILD_CC, [BuildC])
+      TOOLCHAIN_EXTRACT_COMPILER_VERSION(BUILD_CXX, [BuildC++])
+      TOOLCHAIN_PREPARE_FOR_VERSION_COMPARISONS([BUILD_], [OPENJDK_BUILD_], [build ])
+      TOOLCHAIN_EXTRACT_LD_VERSION(BUILD_LD, [build linker])
+      TOOLCHAIN_PREPARE_FOR_LD_VERSION_COMPARISONS([BUILD_], [OPENJDK_BUILD_])
+    fi
   else
     # If we are not cross compiling, use the normal target compilers for
     # building the build platform executables.

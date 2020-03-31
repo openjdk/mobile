@@ -38,11 +38,17 @@
 #include <sys/time.h>
 
 #include "manifest_info.h"
-
+#ifdef __APPLE__
+#include <TargetConditionals.h>
+#if ! TARGET_OS_IPHONE
 /* Support Cocoa event loop on the main thread */
 #include <Cocoa/Cocoa.h>
 #include <objc/objc-runtime.h>
 #include <objc/objc-auto.h>
+#endif
+#else
+#define TARGET_OS_IPHONE 0
+#endif
 
 #include <errno.h>
 #include <spawn.h>
@@ -181,6 +187,7 @@ GetExecName() {
     return execname;
 }
 
+#if ! TARGET_OS_IPHONE
 /*
  * Exports the JNI interface from libjli
  *
@@ -209,6 +216,8 @@ static InvocationFunctions *GetExportedJNIFunctions() {
 #if defined(__i386__)
         preferredJVM = "client";
 #elif defined(__x86_64__)
+        preferredJVM = "server";
+#elif defined(__arm64__)
         preferredJVM = "server";
 #else
 #error "Unknown architecture - needs definition"
@@ -255,6 +264,7 @@ JNI_GetCreatedJavaVMs(JavaVM **vmBuf, jsize bufLen, jsize *nVMs) {
     return ifn->GetCreatedJavaVMs(vmBuf, bufLen, nVMs);
 }
 #endif
+
 
 /*
  * Allow JLI-aware launchers to specify a client/server preference
@@ -953,3 +963,4 @@ ProcessPlatformOption(const char* arg)
     // arguments we know not
     return JNI_FALSE;
 }
+#endif

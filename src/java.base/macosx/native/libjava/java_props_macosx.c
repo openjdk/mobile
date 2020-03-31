@@ -23,6 +23,9 @@
  * questions.
  */
 
+#include "java_props_macosx.h"
+#if ! TARGET_OS_IPHONE
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -32,7 +35,20 @@
 #include <SystemConfiguration/SystemConfiguration.h>
 #include <Foundation/Foundation.h>
 
-#include "java_props_macosx.h"
+#else
+#include <stdlib.h>
+#include <string.h>
+#include <sys/param.h>
+
+#include <objc/runtime.h>
+#include <objc/objc.h>
+#include <objc/message.h>
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreFoundation/CFlocale.h>
+
+#endif
+
+#if ! TARGET_OS_IPHONE
 
 char *getPosixLocale(int cat) {
     char *lc = setlocale(cat, NULL);
@@ -473,3 +489,4 @@ void setProxyProperties(java_props_t *sProps) {
 
     CFRelease(dict);
 }
+#endif
