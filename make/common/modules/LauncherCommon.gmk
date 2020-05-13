@@ -45,11 +45,16 @@ else ifeq ($(TOOLCHAIN_TYPE), solstudio)
 endif
 
 LAUNCHER_SRC := $(TOPDIR)/src/java.base/share/native/launcher
-LAUNCHER_CFLAGS += -I$(TOPDIR)/src/java.base/share/native/launcher \
+LAUNCHER_CFLAGS += -I$(TOPDIR)/src/java.base/share/native/launcherJA \
     -I$(TOPDIR)/src/java.base/share/native/libjli \
     -I$(TOPDIR)/src/java.base/$(OPENJDK_TARGET_OS_TYPE)/native/libjli \
     -I$(TOPDIR)/src/java.base/$(OPENJDK_TARGET_OS)/native/libjli \
     #
+
+ifeq ($(call isTargetOs, ios), true)
+  LAUNCHER_CFLAGS += -I$(TOPDIR)/src/java.base/macosx/native/libjli
+fi
+
 GLOBAL_VERSION_INFO_RESOURCE := $(TOPDIR)/src/java.base/windows/native/common/version.rc
 MACOSX_PLIST_DIR := $(TOPDIR)/src/java.base/macosx/native/launcher
 JAVA_MANIFEST := $(TOPDIR)/src/java.base/windows/native/launcher/java.manifest

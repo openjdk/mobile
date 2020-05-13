@@ -35,6 +35,24 @@ include NativeCompilation.gmk
 # Hook to include the corresponding custom file, if present.
 $(eval $(call IncludeCustomExtension, common/JdkNativeCompilation.gmk))
 
+ifeq ($(OPENJDK_TARGET_OS), ios)
+  FindSrcDirsForLib = \
+    $(call uniq, $(wildcard \
+        $(TOPDIR)/src/$(strip $1)/$(OPENJDK_TARGET_OS)/native/lib$(strip $2) \
+        $(TOPDIR)/src/$(strip $1)/$(OPENJDK_TARGET_OS_TYPE)/native/lib$(strip $2) \
+        $(TOPDIR)/src/$(strip $1)/macosx/native/lib$(strip $2) \
+        $(TOPDIR)/src/$(strip $1)/share/native/lib$(strip $2)))
+endif
+
+ifeq ($(OPENJDK_TARGET_OS), android)
+  FindSrcDirsForLib = \
+    $(call uniq, $(wildcard \
+        $(TOPDIR)/src/$(strip $1)/$(OPENJDK_TARGET_OS)/native/lib$(strip $2) \
+        $(TOPDIR)/src/$(strip $1)/$(OPENJDK_TARGET_OS_TYPE)/native/lib$(strip $2) \
+        $(TOPDIR)/src/$(strip $1)/linux/native/lib$(strip $2) \
+        $(TOPDIR)/src/$(strip $1)/share/native/lib$(strip $2)))
+endif
+
 FindSrcDirsForLib += \
   $(call uniq, $(wildcard \
       $(TOPDIR)/src/$(strip $1)/$(OPENJDK_TARGET_OS)/native/lib$(strip $2) \
@@ -46,6 +64,8 @@ FindSrcDirsForComponent += \
       $(TOPDIR)/src/$(strip $1)/$(OPENJDK_TARGET_OS)/native/$(strip $2) \
       $(TOPDIR)/src/$(strip $1)/$(OPENJDK_TARGET_OS_TYPE)/native/$(strip $2) \
       $(TOPDIR)/src/$(strip $1)/share/native/$(strip $2)))
+
+
 
 # Find a library. Used for declaring dependencies on libraries in different
 # modules.

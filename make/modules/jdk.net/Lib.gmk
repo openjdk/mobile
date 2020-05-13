@@ -27,7 +27,7 @@ include LibCommon.gmk
 
 ################################################################################
 
-ifeq ($(call isTargetOs, solaris linux macosx), true)
+ifeq ($(call isTargetOs, solaris linux macosx ios android), true)
 
   $(eval $(call SetupJdkLibrary, BUILD_LIBEXTNET, \
       NAME := extnet, \
