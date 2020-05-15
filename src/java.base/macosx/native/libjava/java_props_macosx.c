@@ -23,6 +23,7 @@
  * questions.
  */
 
+#ifndef TARGET_IOS
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -32,7 +33,21 @@
 #include <SystemConfiguration/SystemConfiguration.h>
 #include <Foundation/Foundation.h>
 
+#else
+#include <stdlib.h>
+#include <string.h>
+#include <sys/param.h>
+#include <objc/runtime.h>
+#include <objc/objc.h>
+#include <objc/message.h>
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreFoundation/CFlocale.h>
+
+#endif
+
 #include "java_props_macosx.h"
+
+#ifndef TARGET_IOS
 
 char *getPosixLocale(int cat) {
     char *lc = setlocale(cat, NULL);
@@ -473,3 +488,31 @@ void setProxyProperties(java_props_t *sProps) {
 
     CFRelease(dict);
 }
+#else
+#define LOCALEIDLENGTH  128
+char *getPosixLocale(int cat) {
+    char *lc = setlocale(cat, NULL);
+    if ((lc == NULL) || (strcmp(lc, "C") == 0)) {
+        lc = getenv("LANG");
+    }
+    if (lc == NULL) return NULL;
+    return strdup(lc);
+  }
+
+char *getMacOSXLocale(int cat) {
+    char localeString[LOCALEIDLENGTH];
+    // Get current user locale.
+    CFLocaleRef loc = CFLocaleCopyCurrent();
+    char *localstr;
+    if (CFStringGetCString(CFLocaleGetIdentifier(loc),
+                           localeString, LOCALEIDLENGTH,
+                           kCFStringEncodingUTF8))
+      localstr = strdup(localeString);
+    else
+      localstr =  NULL;
+
+    CFRelease(loc);
+    return (localstr);
+}
+
+#endif
