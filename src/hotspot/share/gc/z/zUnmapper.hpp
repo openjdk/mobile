@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,15 +21,34 @@
  * questions.
  */
 
-#ifndef SHARE_GC_Z_ZPAGECACHE_INLINE_HPP
-#define SHARE_GC_Z_ZPAGECACHE_INLINE_HPP
+#ifndef SHARE_GC_Z_ZUNMAPPER_HPP
+#define SHARE_GC_Z_ZUNMAPPER_HPP
 
-#include "gc/z/zList.inline.hpp"
-#include "gc/z/zPageCache.hpp"
-#include "gc/z/zValue.inline.hpp"
+#include "gc/z/zList.hpp"
+#include "gc/z/zLock.hpp"
+#include "gc/shared/concurrentGCThread.hpp"
 
-inline size_t ZPageCache::available() const {
-  return _available;
-}
+class ZPage;
+class ZPageAllocator;
 
-#endif // SHARE_GC_Z_ZPAGECACHE_INLINE_HPP
+class ZUnmapper : public ConcurrentGCThread {
+private:
+  ZPageAllocator* const _page_allocator;
+  ZConditionLock        _lock;
+  ZList<ZPage>          _queue;
+  bool                  _stop;
+
+  ZPage* dequeue();
+  void do_unmap_and_destroy_page(ZPage* page) const;
+
+protected:
+  virtual void run_service();
+  virtual void stop_service();
+
+public:
+  ZUnmapper(ZPageAllocator* page_allocator);
+
+  void unmap_and_destroy_page(ZPage* page);
+};
+
+#endif // SHARE_GC_Z_ZUNMAPPER_HPP
