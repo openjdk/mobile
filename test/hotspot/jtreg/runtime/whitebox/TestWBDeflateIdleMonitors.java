@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,55 +21,58 @@
  * questions.
  */
 
-package gc.whitebox;
+package runtime.whitebox;
 
 /*
  * @test
- * @bug 8055098
- * @summary Test to verify that WB methods isObjectInOldGen and youngGC work correctly.
- * @requires vm.gc != "Z" & vm.gc != "Shenandoah"
+ * @bug 8246477
+ * @summary Test to verify that WB method deflateIdleMonitors works correctly.
  * @library /test/lib
  * @modules java.base/jdk.internal.misc
  *          java.management
  * @build sun.hotspot.WhiteBox
  * @run driver ClassFileInstaller sun.hotspot.WhiteBox
- * @run driver gc.whitebox.TestWBGC
+ * @run driver runtime.whitebox.TestWBDeflateIdleMonitors
  */
 import jdk.test.lib.Asserts;
 import jdk.test.lib.process.ProcessTools;
 import jdk.test.lib.process.OutputAnalyzer;
 import sun.hotspot.WhiteBox;
 
-public class TestWBGC {
+public class TestWBDeflateIdleMonitors {
 
     public static void main(String args[]) throws Exception {
         ProcessBuilder pb = ProcessTools.createTestJvm(
                 "-Xbootclasspath/a:.",
                 "-XX:+UnlockDiagnosticVMOptions",
                 "-XX:+WhiteBoxAPI",
-                "-XX:MaxTenuringThreshold=1",
-                "-Xlog:gc",
-                GCYoungTest.class.getName());
+                "-Xlog:monitorinflation=info",
+                InflateMonitorsTest.class.getName());
 
         OutputAnalyzer output = new OutputAnalyzer(pb.start());
         System.out.println(output.getStdout());
         output.shouldHaveExitValue(0);
-        output.shouldContain("WhiteBox Initiated Young GC");
-        output.shouldNotContain("Full");
-        // To be sure that we don't provoke Full GC additionaly to young
+        output.shouldContain("WhiteBox initiated DeflateIdleMonitors");
     }
 
-    public static class GCYoungTest {
+    public static class InflateMonitorsTest {
         static WhiteBox wb = WhiteBox.getWhiteBox();
         public static Object obj;
 
         public static void main(String args[]) {
             obj = new Object();
-            Asserts.assertFalse(wb.isObjectInOldGen(obj));
-            wb.youngGC();
-            wb.youngGC();
-            // 2 young GC is needed to promote object into OldGen
-            Asserts.assertTrue(wb.isObjectInOldGen(obj));
+            synchronized (obj) {
+                // HotSpot implementation detail: asking for the hash code
+                // when the object is locked causes monitor inflation.
+                if (obj.hashCode() == 0xBAD) System.out.println("!");
+                Asserts.assertEQ(wb.isMonitorInflated(obj), true,
+                                 "Monitor should be inflated.");
+            }
+            boolean did_deflation = wb.deflateIdleMonitors();
+            Asserts.assertEQ(did_deflation, true,
+                             "deflateIdleMonitors() should have worked.");
+            Asserts.assertEQ(wb.isMonitorInflated(obj), false,
+                             "Monitor should be deflated.");
         }
     }
 }
