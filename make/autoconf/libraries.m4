@@ -40,8 +40,8 @@ m4_include([lib-tests.m4])
 AC_DEFUN_ONCE([LIB_DETERMINE_DEPENDENCIES],
 [
   # Check if X11 is needed
-  if test "x$OPENJDK_TARGET_OS" = xwindows || test "x$OPENJDK_TARGET_OS" = xmacosx; then
-    # No X11 support on windows or macosx
+  if test "x$OPENJDK_TARGET_OS" = xwindows || test "x$OPENJDK_TARGET_OS" = xmacosx || test "x$OPENJDK_TARGET_OS" = xios || test "x$OPENJDK_TARGET_OS" = xandroid; then
+    # No X11 support on windows, macosx, ios or android
     NEEDS_LIB_X11=false
   else
     # All other instances need X11, even if building headless only, libawt still
@@ -50,8 +50,8 @@ AC_DEFUN_ONCE([LIB_DETERMINE_DEPENDENCIES],
   fi
 
   # Check if fontconfig is needed
-  if test "x$OPENJDK_TARGET_OS" = xwindows || test "x$OPENJDK_TARGET_OS" = xmacosx; then
-    # No fontconfig support on windows or macosx
+  if test "x$OPENJDK_TARGET_OS" = xwindows || test "x$OPENJDK_TARGET_OS" = xmacosx || test "x$OPENJDK_TARGET_OS" = xios || test "x$OPENJDK_TARGET_OS" = xandroid; then
+    # No fontconfig support on windows, macosx, ios or android
     NEEDS_LIB_FONTCONFIG=false
   else
     # All other instances need fontconfig, even if building headless only,
