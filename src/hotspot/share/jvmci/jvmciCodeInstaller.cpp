@@ -897,8 +897,14 @@ JVMCI::CodeInstallResult CodeInstaller::initialize_buffer(CodeBuffer& buffer, bo
           JVMCI_ERROR_OK("method contains safepoint, but has no deopt rescue slot");
         }
         if (JVMCIENV->equals(reason, jvmci_env()->get_site_InfopointReason_IMPLICIT_EXCEPTION())) {
-          JVMCI_event_4("implicit exception at %i", pc_offset);
-          _implicit_exception_table.add_deoptimize(pc_offset);
+          if (jvmci_env()->isa_site_ImplicitExceptionDispatch(site)) {
+            jint dispatch_offset = jvmci_env()->get_site_ImplicitExceptionDispatch_dispatchOffset(site);
+            JVMCI_event_4("implicit exception at %i, dispatch to %i", pc_offset, dispatch_offset);
+            _implicit_exception_table.append(pc_offset, dispatch_offset);
+          } else {
+            JVMCI_event_4("implicit exception at %i", pc_offset);
+            _implicit_exception_table.add_deoptimize(pc_offset);
+          }
         }
       } else {
         JVMCI_event_4("infopoint at %i", pc_offset);
@@ -919,7 +925,7 @@ JVMCI::CodeInstallResult CodeInstaller::initialize_buffer(CodeBuffer& buffer, bo
     last_pc_offset = pc_offset;
 
     JavaThread* thread = JavaThread::current();
-    if (SafepointMechanism::should_block(thread)) {
+    if (SafepointMechanism::should_process(thread)) {
       // this is a hacky way to force a safepoint check but nothing else was jumping out at me.
       ThreadToNativeFromVM ttnfv(thread);
     }

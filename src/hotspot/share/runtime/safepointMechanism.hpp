@@ -39,7 +39,6 @@ class SafepointMechanism : public AllStatic {
   static void* poll_armed_value()                     { return _poll_armed_value; }
   static void* poll_disarmed_value()                  { return _poll_disarmed_value; }
 
-  static inline bool local_poll_armed(JavaThread* thread);
 
   static inline void disarm_local_poll(JavaThread* thread);
   static inline void disarm_local_poll_release(JavaThread* thread);
@@ -47,8 +46,8 @@ class SafepointMechanism : public AllStatic {
   static inline bool local_poll(Thread* thread);
   static inline bool global_poll();
 
-  static void block_or_handshake(JavaThread *thread);
-  static void block_if_requested_slow(JavaThread *thread);
+  static void process(JavaThread *thread);
+  static void process_if_requested_slow(JavaThread *thread);
 
   static void default_initialize();
 
@@ -58,16 +57,17 @@ class SafepointMechanism : public AllStatic {
   // between the armed and disarmed value by masking out this bit.
   const static intptr_t _poll_bit = 8;
 public:
+  static inline bool local_poll_armed(JavaThread* thread);
   static intptr_t poll_bit() { return _poll_bit; }
 
   static address get_polling_page()             { return _polling_page; }
   static bool    is_poll_address(address addr)  { return addr >= _polling_page && addr < (_polling_page + os::vm_page_size()); }
 
   // Call this method to see if this thread should block for a safepoint or process handshake.
-  static inline bool should_block(Thread* thread);
+  static inline bool should_process(Thread* thread);
 
-  // Blocks a thread until safepoint/handshake is completed.
-  static inline void block_if_requested(JavaThread* thread);
+  // Processes a pending requested operation.
+  static inline void process_if_requested(JavaThread* thread);
 
   // Caller is responsible for using a memory barrier if needed.
   static inline void arm_local_poll(JavaThread* thread);
