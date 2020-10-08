@@ -372,6 +372,10 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
   elif test "x$OPENJDK_TARGET_OS" = xmacosx; then
     CFLAGS_OS_DEF_JVM="-D_ALLBSD_SOURCE -D_DARWIN_C_SOURCE -D_XOPEN_SOURCE"
     CFLAGS_OS_DEF_JDK="-D_ALLBSD_SOURCE -D_DARWIN_UNLIMITED_SELECT"
+  elif test "x$OPENJDK_TARGET_OS" = xios; then
+    CFLAGS_OS_DEF_JDK="-DMACOSX -D_ALLBSD_SOURCE -DTARGET_IOS -D_DARWIN_UNLIMITED_SELECT"
+  elif test "x$OPENJDK_TARGET_OS" = xandroid; then
+    CFLAGS_OS_DEF_JDK="-target aarch64-linux-android -D__USE_BSD"
   elif test "x$OPENJDK_TARGET_OS" = xaix; then
     CFLAGS_OS_DEF_JVM="-DAIX"
   elif test "x$OPENJDK_TARGET_OS" = xbsd; then
@@ -398,6 +402,9 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
       -I${TOPDIR}/src/hotspot/share/include \
       -I${TOPDIR}/src/hotspot/os/${HOTSPOT_TARGET_OS_TYPE}/include"
 
+  if test "x$OPENJDK_TARGET_OS" = xios; then
+    ALWAYS_CFLAGS_JDK="$ALWAYS_CFLAGS_JDK -I${TOPDIR}/src/java.base/macosx/native/libjava"
+  fi
   ###############################################################################
 
   # Adjust flags according to debug level.
