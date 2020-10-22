@@ -185,6 +185,12 @@ AC_DEFUN_ONCE([JDKOPT_SETUP_JDK_OPTIONS],
   if test "x$OPENJDK_TARGET_CPU" = xs390x ; then
     INCLUDE_SA=false
   fi
+  if test "x$OPENJDK_TARGET_CPU" = xandroid ; then
+    INCLUDE_SA=false
+  fi
+  if test "x$OPENJDK_TARGET_CPU" = xios ; then
+    INCLUDE_SA=false
+  fi
   AC_SUBST(INCLUDE_SA)
 
   # Compress jars

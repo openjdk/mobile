@@ -232,6 +232,18 @@ ifeq ($(call isTargetOs, windows macosx linux), false)
 endif
 
 ################################################################################
+# Filter out specific modules for mobile platforms
+
+ifeq ($(call isTargetOs, ios android), true)
+  MODULES_FILTER += java.desktop
+  MODULES_FILTER += jdk.accessibility
+  MODULES_FILTER += jdk.hotspot.agent
+  MODULES_FILTER += jdk.management
+  MODULES_FILTER += jdk.management.agent
+  MODULES_FILTER += jdk.sctp
+endif
+
+################################################################################
 # Module list macros
 
 # Use append so that the custom extension may add to these variables
