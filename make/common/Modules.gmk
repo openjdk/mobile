@@ -235,8 +235,6 @@ endif
 # Filter out specific modules for mobile platforms
 
 ifeq ($(call isTargetOs, ios android), true)
-  MODULES_FILTER += java.desktop
-  MODULES_FILTER += jdk.accessibility
   MODULES_FILTER += jdk.hotspot.agent
   MODULES_FILTER += jdk.management
   MODULES_FILTER += jdk.management.agent
