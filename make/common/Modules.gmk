@@ -234,10 +234,7 @@ endif
 ################################################################################
 # Filter out specific modules for mobile platforms
 
-ifeq ($(call isTargetOs, ios android), true)
-  MODULES_FILTER += jdk.hotspot.agent
-  MODULES_FILTER += jdk.management
-  MODULES_FILTER += jdk.management.agent
+ifeq ($(call isTargetOs, ios), true)
   MODULES_FILTER += jdk.sctp
 endif
 
