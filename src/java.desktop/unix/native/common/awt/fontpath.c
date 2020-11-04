@@ -428,6 +428,7 @@ static char* mergePaths(char **p1, char **p2, char **p3, jboolean noType1) {
     return fontPath;
 }
 
+#ifndef HEADLESS
 /*
  * The goal of this function is to find all "system" fonts which
  * are needed by the JRE to display text in supported locales etc, and
@@ -1332,3 +1333,4 @@ Java_sun_font_FontConfigManager_getFontConfig
     }
     closeFontConfig(libfontconfig, JNI_TRUE);
 }
+#endif

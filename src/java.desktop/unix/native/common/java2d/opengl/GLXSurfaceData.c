@@ -26,6 +26,7 @@
 #include <jlong.h>
 
 #include "sun_java2d_opengl_GLXSurfaceData.h"
+#ifndef HEADLESS
 
 #include "OGLRenderQueue.h"
 #include "GLXGraphicsConfig.h"
@@ -38,7 +39,6 @@
  * layer (GLX) for the OpenGL-based Java 2D pipeline.
  */
 
-#ifndef HEADLESS
 
 extern LockFunc       OGLSD_Lock;
 extern GetRasInfoFunc OGLSD_GetRasInfo;

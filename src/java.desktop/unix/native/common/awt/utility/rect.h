@@ -28,7 +28,7 @@
 #ifndef _AWT_RECT_H
 #define _AWT_RECT_H
 
-#ifndef MACOSX
+#if !defined(MACOSX) && !defined(HEADLESS)
 #include <X11/Xlib.h>
 typedef XRectangle RECT_T;
 #else

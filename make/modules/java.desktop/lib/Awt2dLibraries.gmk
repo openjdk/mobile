@@ -125,6 +125,17 @@ ifeq ($(call isTargetOs, linux), true)
   LIBAWT_CFLAGS += $(EXPORT_ALL_SYMBOLS)
 endif
 
+ifeq ($(ENABLE_HEADLESS_ONLY), true)
+  LIBAWT_CFLAGS += -DHEADLESS
+endif
+ifeq ($(call isTargetOs, ios), android)
+  LIBAWT_EXCLUDES += $(TOPDIR)/src/$(MODULE)/unix/native/common/java2d/x11
+endif
+ifeq ($(call isTargetOs, ios), true)
+  LIBAWT_EXCLUDES += $(TOPDIR)/src/$(MODULE)/unix
+endif
+
+
 # Turn off all warnings for debug_mem.c This is needed because the specific warning
 # about initializing a declared 'extern' cannot be turned off individually. Only
 # applies to debug builds.
@@ -133,6 +144,8 @@ ifeq ($(TOOLCHAIN_TYPE), gcc)
   # This option improves performance of MaskFill in Java2D by 20% for some gcc
   LIBAWT_CFLAGS += -fgcse-after-reload
 endif
+
+LIBAWT_CFLAGS += $(CUPS_CFLAGS)
 
 $(eval $(call SetupJdkLibrary, BUILD_LIBAWT, \
     NAME := awt, \
@@ -362,6 +375,13 @@ ifeq ($(call isTargetOs, windows macosx), false)
       #
 
   LIBAWT_HEADLESS_EXCLUDES := medialib
+  ifeq ($(call isTargetOs, android), true)
+    LIBAWT_HEADLESS_EXCLUDES += $(TOPDIR)/src/$(MODULE)/unix/native/common/java2d/x11
+  endif
+
+  ifeq ($(call isTargetOs, ios), true)
+    LIBAWT_HEADLESS_EXCLUDES += $(TOPDIR)/src/$(MODULE)/unix
+  endif
 
   LIBAWT_HEADLESS_EXTRA_HEADER_DIRS := \
       $(LIBAWT_DEFAULT_HEADER_DIRS) \
@@ -533,7 +553,7 @@ ifeq ($(call isTargetOs, windows), true)
   LIBFONTMANAGER_EXCLUDE_FILES += X11FontScaler.c \
       X11TextRenderer.c
   LIBFONTMANAGER_OPTIMIZATION := HIGHEST
-else ifeq ($(call isTargetOs, macosx), true)
+else ifeq ($(call isTargetOs, macosx ios), true)
   LIBFONTMANAGER_EXCLUDE_FILES += X11FontScaler.c \
       X11TextRenderer.c \
       fontpath.c \
@@ -688,7 +708,9 @@ else # not windows
 
 endif
 
-TARGETS += $(BUILD_LIBJAWT)
+ifeq ($(call isTargetOs, ios), false)
+  TARGETS += $(BUILD_LIBJAWT)
+endif
 
 ################################################################################
 
