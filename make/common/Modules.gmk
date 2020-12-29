@@ -242,6 +242,14 @@ GENERATED_SRC_DIRS += \
 TOP_SRC_DIRS += \
     $(TOPDIR)/src \
     #
+ifeq ($(OPENJDK_TARGET_OS), ios)
+  SRC_SUBDIRS += macosx/classes
+endif
+
+ifeq ($(OPENJDK_TARGET_OS), android)
+  SRC_SUBDIRS += linux/classes
+endif
+
 
 SRC_SUBDIRS += $(OPENJDK_TARGET_OS)/classes
 ifneq ($(OPENJDK_TARGET_OS), $(OPENJDK_TARGET_OS_TYPE))
