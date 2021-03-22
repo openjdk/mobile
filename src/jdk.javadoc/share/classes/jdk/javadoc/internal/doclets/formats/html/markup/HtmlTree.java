@@ -86,8 +86,9 @@ public class HtmlTree extends Content {
 
     /**
      * A sentinel value to explicitly indicate empty content.
+     * The '==' identity of this object is significant.
      */
-    public static final Content EMPTY = new StringContent("");
+    public static final Content EMPTY = Text.of("");
 
     /**
      * Creates an {@code HTMLTree} object representing an HTML element
@@ -119,8 +120,8 @@ public class HtmlTree extends Content {
      * @param id the value for the attribute
      * @return this object
      */
-    public HtmlTree setId(String id) {
-        return put(HtmlAttr.ID, id);
+    public HtmlTree setId(HtmlId id) {
+        return put(HtmlAttr.ID, id.name());
     }
 
     /**
@@ -198,14 +199,14 @@ public class HtmlTree extends Content {
     public HtmlTree add(CharSequence stringContent) {
         if (!content.isEmpty()) {
             Content lastContent = content.get(content.size() - 1);
-            if (lastContent instanceof StringContent)
+            if (lastContent instanceof TextBuilder)
                 lastContent.add(stringContent);
             else {
-                add(new StringContent(stringContent));
+                add(new TextBuilder(stringContent));
             }
         }
         else {
-            add(new StringContent(stringContent));
+            add(new TextBuilder(stringContent));
         }
         return this;
     }
@@ -762,7 +763,7 @@ public class HtmlTree extends Content {
      * @param body  the content
      * @return the element
      */
-    public static HtmlTree SPAN_ID(String id, Content body) {
+    public static HtmlTree SPAN_ID(HtmlId id, Content body) {
         return new HtmlTree(TagName.SPAN)
                 .setId(id)
                 .add(body);
@@ -776,7 +777,7 @@ public class HtmlTree extends Content {
      * @param body  the content
      * @return the element
      */
-    public static HtmlTree SPAN(String id, HtmlStyle style, Content body) {
+    public static HtmlTree SPAN(HtmlId id, HtmlStyle style, Content body) {
         return new HtmlTree(TagName.SPAN)
                 .setId(id)
                 .setStyle(style)

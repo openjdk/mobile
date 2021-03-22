@@ -31,11 +31,9 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import jdk.javadoc.internal.doclets.formats.html.markup.Comment;
 import jdk.javadoc.internal.doclets.formats.html.markup.ContentBuilder;
 import jdk.javadoc.internal.doclets.formats.html.markup.Entity;
-import jdk.javadoc.internal.doclets.formats.html.markup.FixedStringContent;
-import jdk.javadoc.internal.doclets.formats.html.markup.StringContent;
+import jdk.javadoc.internal.doclets.formats.html.markup.Text;
 import jdk.javadoc.internal.doclets.toolkit.Content;
 import jdk.javadoc.internal.doclets.toolkit.Resources;
 import jdk.javadoc.internal.doclets.toolkit.util.DocletConstants;
@@ -140,7 +138,6 @@ public class Contents {
     public final Content navProperty;
     public final Content navServices;
     public final Content nestedClassSummary;
-    public final Content newPage;
     public final Content noScriptMessage;
     public final Content openModuleLabel;
     public final Content openedTo;
@@ -225,7 +222,7 @@ public class Contents {
         constructorSummaryLabel = getContent("doclet.Constructor_Summary");
         constructors = getContent("doclet.Constructors");
         contentsHeading = getContent("doclet.Contents");
-        defaultPackageLabel = new StringContent(DocletConstants.DEFAULT_PACKAGE_NAME);
+        defaultPackageLabel = getContent("doclet.Unnamed_Package");
         default_ = getContent("doclet.Default");
         deprecatedAPI = getContent("doclet.Deprecated_API");
         deprecatedLabel = getContent("doclet.navDeprecated");
@@ -287,7 +284,6 @@ public class Contents {
         navProperty = getContent("doclet.navProperty");
         navServices = getContent("doclet.navServices");
         nestedClassSummary = getContent("doclet.Nested_Class_Summary");
-        newPage = new Comment(resources.getText("doclet.New_Page"));
         noScriptMessage = getContent("doclet.No_Script_Message");
         openedTo = getContent("doclet.OpenedTo");
         openModuleLabel = getContent("doclet.Open_Module");
@@ -351,7 +347,7 @@ public class Contents {
      * @return a content tree for the string
      */
     public Content getContent(String key) {
-        return new FixedStringContent(resources.getText(key));
+        return Text.of(resources.getText(key));
     }
 
     /**
