@@ -505,6 +505,7 @@ JNIEXPORT jobjectArray JNICALL Java_java_net_NetworkInterface_getAll
 
         // put the NetworkInterface into the array
         (*env)->SetObjectArrayElement(env, netIFArr, arr_index++, netifObj);
+        (*env)->DeleteLocalRef(env, netifObj);
 
         curr = curr->next;
     }
@@ -768,12 +769,14 @@ static jobject createNetworkInterface(JNIEnv *env, netif *ifs) {
                             ((struct sockaddr_in*)addrP->brdcast)->sin_addr.s_addr));
                         JNU_CHECK_EXCEPTION_RETURN(env, NULL);
                         (*env)->SetObjectField(env, ibObj, ni_ib4broadcastID, ia2Obj);
+                        (*env)->DeleteLocalRef(env, ia2Obj);
                     } else {
                         return NULL;
                     }
                 }
                 (*env)->SetShortField(env, ibObj, ni_ib4maskID, addrP->mask);
                 (*env)->SetObjectArrayElement(env, bindArr, bind_index++, ibObj);
+                (*env)->DeleteLocalRef(env, ibObj);
             } else {
                 return NULL;
             }
@@ -802,12 +805,14 @@ static jobject createNetworkInterface(JNIEnv *env, netif *ifs) {
                 (*env)->SetObjectField(env, ibObj, ni_ibaddressID, iaObj);
                 (*env)->SetShortField(env, ibObj, ni_ib4maskID, addrP->mask);
                 (*env)->SetObjectArrayElement(env, bindArr, bind_index++, ibObj);
+                (*env)->DeleteLocalRef(env, ibObj);
             } else {
                 return NULL;
             }
         }
 
         (*env)->SetObjectArrayElement(env, addrArr, addr_index++, iaObj);
+        (*env)->DeleteLocalRef(env, iaObj);
         addrP = addrP->next;
     }
 
@@ -839,6 +844,11 @@ static jobject createNetworkInterface(JNIEnv *env, netif *ifs) {
     (*env)->SetObjectField(env, netifObj, ni_addrsID, addrArr);
     (*env)->SetObjectField(env, netifObj, ni_bindsID, bindArr);
     (*env)->SetObjectField(env, netifObj, ni_childsID, childArr);
+
+    (*env)->DeleteLocalRef(env, name);
+    (*env)->DeleteLocalRef(env, addrArr);
+    (*env)->DeleteLocalRef(env, bindArr);
+    (*env)->DeleteLocalRef(env, childArr);
 
     // return the NetworkInterface
     return netifObj;
