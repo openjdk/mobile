@@ -48,6 +48,11 @@ LAUNCHER_CFLAGS += -I$(TOPDIR)/src/java.base/share/native/launcher \
     -I$(TOPDIR)/src/java.base/$(OPENJDK_TARGET_OS_TYPE)/native/libjli \
     -I$(TOPDIR)/src/java.base/$(OPENJDK_TARGET_OS)/native/libjli \
     #
+
+ifeq ($(call isTargetOs, ios), true)
+  LAUNCHER_CFLAGS += -I$(TOPDIR)/src/java.base/macosx/native/libjli
+fi
+
 MACOSX_PLIST_DIR := $(TOPDIR)/src/java.base/macosx/native/launcher
 JAVA_MANIFEST := $(TOPDIR)/src/java.base/windows/native/launcher/java.manifest
 
