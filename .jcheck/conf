@@ -1,5 +1,5 @@
 [general]
-project=jdk
+project=mobile
 jbs=JDK
 
 [checks]
