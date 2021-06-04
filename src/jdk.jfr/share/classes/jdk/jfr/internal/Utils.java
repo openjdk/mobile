@@ -56,6 +56,7 @@ import java.util.Objects;
 
 import jdk.internal.org.objectweb.asm.ClassReader;
 import jdk.internal.org.objectweb.asm.util.CheckClassAdapter;
+import jdk.internal.platform.Metrics;
 import jdk.jfr.Event;
 import jdk.jfr.FlightRecorderPermission;
 import jdk.jfr.Recording;
@@ -75,7 +76,7 @@ public final class Utils {
     public static final String HANDLERS_PACKAGE_NAME = "jdk.jfr.internal.handlers";
     public static final String REGISTER_EVENT = "registerEvent";
     public static final String ACCESS_FLIGHT_RECORDER = "accessFlightRecorder";
-    private final static String LEGACY_EVENT_NAME_PREFIX = "com.oracle.jdk.";
+    private static final String LEGACY_EVENT_NAME_PREFIX = "com.oracle.jdk.";
 
     private static Boolean SAVE_GENERATED;
 
@@ -90,8 +91,14 @@ public final class Utils {
     private static final int BASE = 10;
     private static long THROTTLE_OFF = -2;
 
+    /*
+     * This field will be lazily initialized and the access is not synchronized.
+     * The possible data race is benign and is worth of not introducing any contention here.
+     */
+    private static Metrics[] metrics;
 
     public static void checkAccessFlightRecorder() throws SecurityException {
+        @SuppressWarnings("removal")
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
             sm.checkPermission(new FlightRecorderPermission(ACCESS_FLIGHT_RECORDER));
@@ -99,6 +106,7 @@ public final class Utils {
     }
 
     public static void checkRegisterPermission() throws SecurityException {
+        @SuppressWarnings("removal")
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
             sm.checkPermission(new FlightRecorderPermission(REGISTER_EVENT));
@@ -661,15 +669,16 @@ public final class Utils {
         Class<?> cMirror = Objects.requireNonNull(mirror);
         Class<?> cReal = Objects.requireNonNull(real);
 
-        while (cReal != null) {
-            Map<String, Field> mirrorFields = new HashMap<>();
-            if (cMirror != null) {
-                for (Field f : cMirror.getDeclaredFields()) {
-                    if (isSupportedType(f.getType())) {
-                        mirrorFields.put(f.getName(), f);
-                    }
+        Map<String, Field> mirrorFields = new HashMap<>();
+        while (cMirror != null) {
+            for (Field f : cMirror.getDeclaredFields()) {
+                if (isSupportedType(f.getType())) {
+                    mirrorFields.put(f.getName(), f);
                 }
             }
+            cMirror = cMirror.getSuperclass();
+        }
+        while (cReal != null) {
             for (Field realField : cReal.getDeclaredFields()) {
                 if (isSupportedType(realField.getType())) {
                     String fieldName = realField.getName();
@@ -677,20 +686,20 @@ public final class Utils {
                     if (mirrorField == null) {
                         throw new InternalError("Missing mirror field for " + cReal.getName() + "#" + fieldName);
                     }
+                    if (realField.getType() != mirrorField.getType()) {
+                        throw new InternalError("Incorrect type for mirror field " + fieldName);
+                    }
                     if (realField.getModifiers() != mirrorField.getModifiers()) {
-                        throw new InternalError("Incorrect modifier for mirror field "+ cMirror.getName() + "#" + fieldName);
+                        throw new InternalError("Incorrect modifier for mirror field " + fieldName);
                     }
                     mirrorFields.remove(fieldName);
                 }
             }
-            if (!mirrorFields.isEmpty()) {
-                throw new InternalError(
-                        "Found additional fields in mirror class " + cMirror.getName() + " " + mirrorFields.keySet());
-            }
-            if (cMirror != null) {
-                cMirror = cMirror.getSuperclass();
-            }
             cReal = cReal.getSuperclass();
+        }
+
+        if (!mirrorFields.isEmpty()) {
+            throw new InternalError("Found additional fields in mirror class " + mirrorFields.keySet());
         }
     }
 
@@ -717,6 +726,20 @@ public final class Utils {
         } else {
             return formatPositiveDuration(roundedDuration);
         }
+    }
+
+    public static boolean shouldSkipBytecode(String eventName, Class<?> superClass) {
+        if (superClass.getClassLoader() != null || !superClass.getName().equals("jdk.jfr.events.AbstractJDKEvent")) {
+            return false;
+        }
+        return eventName.startsWith("jdk.Container") && getMetrics() == null;
+    }
+
+    private static Metrics getMetrics() {
+        if (metrics == null) {
+            metrics = new Metrics[]{Metrics.systemMetrics()};
+        }
+        return metrics[0];
     }
 
     private static String formatPositiveDuration(Duration d){
@@ -818,9 +841,7 @@ public final class Utils {
     }
 
     public static Instant epochNanosToInstant(long epochNanos) {
-        long epochSeconds = epochNanos / 1_000_000_000L;
-        long nanoAdjustment = epochNanos - 1_000_000_000L * epochSeconds;
-        return Instant.ofEpochSecond(epochSeconds, nanoAdjustment);
+        return Instant.ofEpochSecond(0, epochNanos);
     }
 
     public static long timeToNanos(Instant timestamp) {

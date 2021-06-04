@@ -194,20 +194,13 @@ static u4 get_primitive_flags() {
   return JVM_ACC_ABSTRACT | JVM_ACC_FINAL | JVM_ACC_PUBLIC;
 }
 
-static bool is_unsafe_anonymous(const Klass* klass) {
-  assert(klass != NULL, "invariant");
-  assert(!klass->is_objArray_klass(), "invariant");
-  return klass->is_instance_klass() && InstanceKlass::cast(klass)->is_unsafe_anonymous();
-}
-
 static ClassLoaderData* get_cld(const Klass* klass) {
   assert(klass != NULL, "invariant");
   if (klass->is_objArray_klass()) {
     klass = ObjArrayKlass::cast(klass)->bottom_klass();
   }
   if (klass->is_non_strong_hidden()) return NULL;
-  return is_unsafe_anonymous(klass) ?
-    InstanceKlass::cast(klass)->unsafe_anonymous_host()->class_loader_data() : klass->class_loader_data();
+  return klass->class_loader_data();
 }
 
 template <typename T>
@@ -331,29 +324,12 @@ static bool is_classloader_klass_allowed(const Klass* k) {
 }
 
 static void do_classloaders() {
-  Stack<const Klass*, mtTracing> mark_stack;
-  mark_stack.push(vmClasses::ClassLoader_klass()->subklass());
-
-  while (!mark_stack.is_empty()) {
-    const Klass* const current = mark_stack.pop();
-    assert(current != NULL, "null element in stack!");
-    if (is_classloader_klass_allowed(current)) {
-      do_loader_klass(current);
-    }
-
-    // subclass (depth)
-    const Klass* next_klass = current->subklass();
-    if (next_klass != NULL) {
-      mark_stack.push(next_klass);
-    }
-
-    // siblings (breadth)
-    next_klass = current->next_sibling();
-    if (next_klass != NULL) {
-      mark_stack.push(next_klass);
+  for (ClassHierarchyIterator iter(vmClasses::ClassLoader_klass()); !iter.done(); iter.next()) {
+    Klass* subk = iter.klass();
+    if (is_classloader_klass_allowed(subk)) {
+      do_loader_klass(subk);
     }
   }
-  assert(mark_stack.is_empty(), "invariant");
 }
 
 static int primitives_count = 9;
@@ -425,15 +401,13 @@ static bool write_klasses() {
   KlassWriter kw(_writer, _class_unload);
   KlassWriterRegistration kwr(&kw, &reg);
   if (_leakp_writer == NULL) {
-    KlassCallback callback(&kwr);
-    _subsystem_callback = &callback;
+    KlassCallback callback(&_subsystem_callback, &kwr);
     do_klasses();
   } else {
     LeakKlassWriter lkw(_leakp_writer, _class_unload);
     CompositeKlassWriter ckw(&lkw, &kw);
     CompositeKlassWriterRegistration ckwr(&ckw, &reg);
-    CompositeKlassCallback callback(&ckwr);
-    _subsystem_callback = &callback;
+    CompositeKlassCallback callback(&_subsystem_callback, &ckwr);
     do_klasses();
   }
   if (is_initial_typeset_for_chunk()) {
@@ -474,8 +448,7 @@ static void register_klass(Klass* klass) {
 static void register_klasses() {
   assert(!_artifacts->has_klass_entries(), "invariant");
   KlassArtifactRegistrator reg(_artifacts);
-  RegisterKlassCallback callback(&reg);
-  _subsystem_callback = &callback;
+  RegisterKlassCallback callback(&_subsystem_callback, &reg);
   ClassLoaderDataGraph::classes_do(&register_klass);
 }
 
@@ -552,8 +525,7 @@ static void write_packages() {
     _artifacts->iterate_klasses(kpw);
     ClearArtifact<PkgPtr> clear;
     PackageWriterWithClear pwwc(&pw, &clear);
-    PackageCallback callback(&pwwc);
-    _subsystem_callback = &callback;
+    PackageCallback callback(&_subsystem_callback, &pwwc);
     do_packages();
   } else {
     LeakPackageWriter lpw(_leakp_writer, _class_unload);
@@ -562,8 +534,7 @@ static void write_packages() {
     _artifacts->iterate_klasses(kcpw);
     ClearArtifact<PkgPtr> clear;
     CompositePackageWriterWithClear cpwwc(&cpw, &clear);
-    CompositePackageCallback callback(&cpwwc);
-    _subsystem_callback = &callback;
+    CompositePackageCallback callback(&_subsystem_callback, &cpwwc);
     do_packages();
   }
   _artifacts->tally(pw);
@@ -573,8 +544,7 @@ typedef JfrArtifactCallbackHost<PkgPtr, ClearArtifact<PkgPtr> > ClearPackageCall
 
 static void clear_packages() {
   ClearArtifact<PkgPtr> clear;
-  ClearPackageCallback callback(&clear);
-  _subsystem_callback = &callback;
+  ClearPackageCallback callback(&_subsystem_callback, &clear);
   do_packages();
 }
 
@@ -651,8 +621,7 @@ static void write_modules() {
     _artifacts->iterate_klasses(kmw);
     ClearArtifact<ModPtr> clear;
     ModuleWriterWithClear mwwc(&mw, &clear);
-    ModuleCallback callback(&mwwc);
-    _subsystem_callback = &callback;
+    ModuleCallback callback(&_subsystem_callback, &mwwc);
     do_modules();
   } else {
     LeakModuleWriter lmw(_leakp_writer, _class_unload);
@@ -661,8 +630,7 @@ static void write_modules() {
     _artifacts->iterate_klasses(kcpw);
     ClearArtifact<ModPtr> clear;
     CompositeModuleWriterWithClear cmwwc(&cmw, &clear);
-    CompositeModuleCallback callback(&cmwwc);
-    _subsystem_callback = &callback;
+    CompositeModuleCallback callback(&_subsystem_callback, &cmwwc);
     do_modules();
   }
   _artifacts->tally(mw);
@@ -672,8 +640,7 @@ typedef JfrArtifactCallbackHost<ModPtr, ClearArtifact<ModPtr> > ClearModuleCallb
 
 static void clear_modules() {
   ClearArtifact<ModPtr> clear;
-  ClearModuleCallback callback(&clear);
-  _subsystem_callback = &callback;
+  ClearModuleCallback callback(&_subsystem_callback, &clear);
   do_modules();
 }
 
@@ -785,8 +752,7 @@ static void write_classloaders() {
     _artifacts->iterate_klasses(kmcw);
     ClearArtifact<CldPtr> clear;
     CldWriterWithClear cldwwc(&cldw, &clear);
-    CldCallback callback(&cldwwc);
-    _subsystem_callback = &callback;
+    CldCallback callback(&_subsystem_callback, &cldwwc);
     do_class_loaders();
   } else {
     LeakCldWriter lcldw(_leakp_writer, _class_unload);
@@ -797,8 +763,7 @@ static void write_classloaders() {
     _artifacts->iterate_klasses(kmccldw);
     ClearArtifact<CldPtr> clear;
     CompositeCldWriterWithClear ccldwwc(&ccldw, &clear);
-    CompositeCldCallback callback(&ccldwwc);
-    _subsystem_callback = &callback;
+    CompositeCldCallback callback(&_subsystem_callback, &ccldwwc);
     do_class_loaders();
   }
   _artifacts->tally(cldw);
@@ -808,8 +773,7 @@ typedef JfrArtifactCallbackHost<CldPtr, ClearArtifact<CldPtr> > ClearCLDCallback
 
 static void clear_classloaders() {
   ClearArtifact<CldPtr> clear;
-  ClearCLDCallback callback(&clear);
-  _subsystem_callback = &callback;
+  ClearCLDCallback callback(&_subsystem_callback, &clear);
   do_class_loaders();
 }
 
@@ -899,12 +863,11 @@ class MethodIteratorHost {
   bool operator()(KlassPtr klass) {
     if (_method_used_predicate(klass)) {
       const InstanceKlass* ik = InstanceKlass::cast(klass);
-      const int len = ik->methods()->length();
-      Filter filter(ik->previous_versions() != NULL ? len : 0);
       while (ik != NULL) {
+        const int len = ik->methods()->length();
         for (int i = 0; i < len; ++i) {
           MethodPtr method = ik->methods()->at(i);
-          if (_method_flag_predicate(method) && filter(i)) {
+          if (_method_flag_predicate(method)) {
             _method_cb(method);
           }
         }

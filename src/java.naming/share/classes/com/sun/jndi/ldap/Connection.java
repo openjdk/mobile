@@ -182,6 +182,7 @@ public final class Connection implements Runnable {
     private static boolean hostnameVerificationDisabledValue() {
         PrivilegedAction<String> act = () -> System.getProperty(
                 "com.sun.jndi.ldap.object.disableEndpointIdentification");
+        @SuppressWarnings("removal")
         String prop = AccessController.doPrivileged(act);
         if (prop == null) {
             return false;
@@ -238,7 +239,7 @@ public final class Connection implements Runnable {
             outStream = new BufferedOutputStream(sock.getOutputStream());
 
         } catch (InvocationTargetException e) {
-            Throwable realException = e.getTargetException();
+            Throwable realException = e.getCause();
             // realException.printStackTrace();
 
             CommunicationException ce =

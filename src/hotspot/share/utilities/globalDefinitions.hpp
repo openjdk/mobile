@@ -34,6 +34,8 @@
 
 #include COMPILER_HEADER(utilities/globalDefinitions)
 
+#include <cstddef>
+
 class oopDesc;
 
 // Defaults for macros that might be defined per compiler.
@@ -148,6 +150,11 @@ class oopDesc;
 #define UINTX_FORMAT          "%" PRIuPTR
 #define INTX_FORMAT_W(width)  "%" #width PRIdPTR
 #define UINTX_FORMAT_W(width) "%" #width PRIuPTR
+
+// Convert pointer to intptr_t, for use in printing pointers.
+inline intptr_t p2i(const volatile void* p) {
+  return (intptr_t) p;
+}
 
 //----------------------------------------------------------------------------------------------------
 // Constants
@@ -414,6 +421,7 @@ inline address_word  castable_address(void* x)                { return address_w
 inline size_t pointer_delta(const volatile void* left,
                             const volatile void* right,
                             size_t element_size) {
+  assert(left >= right, "avoid underflow - left: " PTR_FORMAT " right: " PTR_FORMAT, p2i(left), p2i(right));
   return (((uintptr_t) left) - ((uintptr_t) right)) / element_size;
 }
 
@@ -1084,11 +1092,6 @@ inline int extract_high_short_from_int(jint x) {
 
 inline int build_int_from_shorts( jushort low, jushort high ) {
   return ((int)((unsigned int)high << 16) | (unsigned int)low);
-}
-
-// Convert pointer to intptr_t, for use in printing pointers.
-inline intptr_t p2i(const void * p) {
-  return (intptr_t) p;
 }
 
 // swap a & b

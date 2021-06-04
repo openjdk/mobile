@@ -1320,8 +1320,8 @@ void LIR_Assembler::reg2mem(LIR_Opr from_reg, LIR_Opr dest, BasicType type,
 
 
 void LIR_Assembler::return_op(LIR_Opr result, C1SafepointPollStub* code_stub) {
-  const Register return_pc        = R31;  // Must survive C-call to enable_stack_reserved_zone().
-  const Register polling_page     = R12;
+  const Register return_pc = R31;  // Must survive C-call to enable_stack_reserved_zone().
+  const Register temp      = R12;
 
   // Pop the stack before the safepoint code.
   int frame_size = initial_frame_size_in_bytes();
@@ -1330,8 +1330,6 @@ void LIR_Assembler::return_op(LIR_Opr result, C1SafepointPollStub* code_stub) {
   } else {
     __ pop_frame();
   }
-
-  __ ld(polling_page, in_bytes(Thread::polling_page_offset()), R16_thread);
 
   // Restore return pc relative to callers' sp.
   __ ld(return_pc, _abi0(lr), R1_SP);
@@ -1344,8 +1342,11 @@ void LIR_Assembler::return_op(LIR_Opr result, C1SafepointPollStub* code_stub) {
 
   // We need to mark the code position where the load from the safepoint
   // polling page was emitted as relocInfo::poll_return_type here.
-  __ relocate(relocInfo::poll_return_type);
-  __ load_from_polling_page(polling_page);
+  if (!UseSIGTRAP) {
+    code_stub->set_safepoint_offset(__ offset());
+    __ relocate(relocInfo::poll_return_type);
+  }
+  __ safepoint_poll(*code_stub->entry(), temp, true /* at_return */, true /* in_nmethod */);
 
   // Return.
   __ blr();
@@ -1354,7 +1355,7 @@ void LIR_Assembler::return_op(LIR_Opr result, C1SafepointPollStub* code_stub) {
 
 int LIR_Assembler::safepoint_poll(LIR_Opr tmp, CodeEmitInfo* info) {
   const Register poll_addr = tmp->as_register();
-  __ ld(poll_addr, in_bytes(Thread::polling_page_offset()), R16_thread);
+  __ ld(poll_addr, in_bytes(JavaThread::polling_page_offset()), R16_thread);
   if (info != NULL) {
     add_debug_info_for_branch(info);
   }
@@ -1626,10 +1627,8 @@ void LIR_Assembler::arith_op(LIR_Code code, LIR_Opr left, LIR_Opr right, LIR_Opr
         switch (code) {
           case lir_add: __ fadds(res, lreg, rreg); break;
           case lir_sub: __ fsubs(res, lreg, rreg); break;
-          case lir_mul: // fall through
-          case lir_mul_strictfp: __ fmuls(res, lreg, rreg); break;
-          case lir_div: // fall through
-          case lir_div_strictfp: __ fdivs(res, lreg, rreg); break;
+          case lir_mul: __ fmuls(res, lreg, rreg); break;
+          case lir_div: __ fdivs(res, lreg, rreg); break;
           default: ShouldNotReachHere();
         }
       } else {
@@ -1639,10 +1638,8 @@ void LIR_Assembler::arith_op(LIR_Code code, LIR_Opr left, LIR_Opr right, LIR_Opr
         switch (code) {
           case lir_add: __ fadd(res, lreg, rreg); break;
           case lir_sub: __ fsub(res, lreg, rreg); break;
-          case lir_mul: // fall through
-          case lir_mul_strictfp: __ fmul(res, lreg, rreg); break;
-          case lir_div: // fall through
-          case lir_div_strictfp: __ fdiv(res, lreg, rreg); break;
+          case lir_mul: __ fmul(res, lreg, rreg); break;
+          case lir_div: __ fdiv(res, lreg, rreg); break;
           default: ShouldNotReachHere();
         }
       }
