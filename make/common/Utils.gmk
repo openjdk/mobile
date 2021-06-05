@@ -308,7 +308,7 @@ isTargetOs = \
   $(strip $(if $(filter $(OPENJDK_TARGET_OS), $1), true, false))
 
 ifeq ($(call isTargetOs, android), true)
-  // PATCH: Since Android is Linux, so Linux specific things are also built for Android.
+  # PATCH: Since Android is Linux, so Linux specific things are also built for Android.
   isTargetOs = \
     $(strip $(if $(filter $(OPENJDK_TARGET_OS), $1), true, $(if $(filter linux, $1), true, false)))
 endif
