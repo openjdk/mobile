@@ -5214,7 +5214,7 @@ bool os::is_thread_cpu_time_supported() {
 int os::loadavg(double loadavg[], int nelem) {
 #ifndef __ANDROID__
   return ::getloadavg(loadavg, nelem);
-#else {
+#else
 /*
  * Copyright (C) 2018 The Android Open Source Project
  * All rights reserved.
