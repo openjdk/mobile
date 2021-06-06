@@ -3941,6 +3941,7 @@ static char* shmat_large_pages(int shmid, size_t bytes, size_t alignment, char* 
 
 char* os::Linux::reserve_memory_special_shm(size_t bytes, size_t alignment,
                                             char* req_addr, bool exec) {
+#ifndef __ANDROID__
   // "exec" is passed in but not used.  Creating the shared image for
   // the code cache doesn't have an SHM_X executable permission to check.
   assert(UseLargePages && UseSHM, "only for SHM large pages");
@@ -3985,6 +3986,10 @@ char* os::Linux::reserve_memory_special_shm(size_t bytes, size_t alignment,
   shmctl(shmid, IPC_RMID, NULL);
 
   return addr;
+#else
+  assert(0, "SHM not supported on this platform");
+  return NULL;
+#endif // !__ANDROID__
 }
 
 static void warn_on_commit_special_failure(char* req_addr, size_t bytes,
