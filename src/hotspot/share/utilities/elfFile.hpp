@@ -47,7 +47,9 @@ typedef Elf64_Phdr      Elf_Phdr;
 typedef Elf64_Sym       Elf_Sym;
 
 #if !defined(_ALLBSD_SOURCE) || defined(__APPLE__)
+#ifndef ELF_ST_TYPE
 #define ELF_ST_TYPE ELF64_ST_TYPE
+#endif
 #endif
 
 #else
