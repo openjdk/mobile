@@ -380,7 +380,7 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
     CFLAGS_OS_DEF_JDK="-D_ALLBSD_SOURCE -D_DARWIN_UNLIMITED_SELECT"
   elif test "x$OPENJDK_TARGET_OS" = xios; then
     CFLAGS_OS_DEF_JDK="-DMACOSX -D_ALLBSD_SOURCE -DTARGET_IOS -D_DARWIN_UNLIMITED_SELECT"
-  elif test "x$OPENJDK_TARGET_OS" = xandroid; then
+  elif test "x$VAR_OS" = xandroid; then
     CFLAGS_OS_DEF_JDK="-target aarch64-linux-android -D__USE_BSD"
   elif test "x$OPENJDK_TARGET_OS" = xaix; then
     CFLAGS_OS_DEF_JVM="-DAIX"
