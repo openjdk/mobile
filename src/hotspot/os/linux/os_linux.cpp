@@ -3520,7 +3520,7 @@ int os::Linux::hugetlbfs_page_size_flag(size_t page_size) {
   return 0;
 }
 
-bool os::Linux::(bool warn, size_t page_size) {
+bool os::Linux::hugetlbfs_sanity_check(bool warn, size_t page_size) {
   // Include the page size flag to ensure we sanity check the correct page size.
   int flags = MAP_ANONYMOUS | MAP_PRIVATE | MAP_HUGETLB | hugetlbfs_page_size_flag(page_size);
   void *p = mmap(NULL, page_size, PROT_READ|PROT_WRITE, flags, -1, 0);
@@ -3558,6 +3558,7 @@ bool os::Linux::(bool warn, size_t page_size) {
 }
 
 bool os::Linux::shm_hugetlbfs_sanity_check(bool warn, size_t page_size) {
+#ifndef __ANDROID__
   // Try to create a large shared memory segment.
   int shmid = shmget(IPC_PRIVATE, page_size, SHM_HUGETLB|IPC_CREAT|SHM_R|SHM_W);
   if (shmid == -1) {
@@ -3575,10 +3576,14 @@ bool os::Linux::shm_hugetlbfs_sanity_check(bool warn, size_t page_size) {
       warning("Large pages using UseSHM are not configured on this system.");
     }
     return false;
-  }m
+  }
   // Managed to create a segment, now delete it.
   shmctl(shmid, IPC_RMID, NULL);
   return true;
+#else
+  warning("UseSHM not supported on this platform");
+  return false;
+#endif
 }
 
 // From the coredump_filter documentation:
@@ -4115,8 +4120,13 @@ char* os::pd_reserve_memory_special(size_t bytes, size_t alignment, size_t page_
 }
 
 bool os::Linux::release_memory_special_shm(char* base, size_t bytes) {
+#ifndef __ANDROID__
   // detaching the SHM segment will also delete it, see reserve_memory_special_shm()
   return shmdt(base) == 0;
+#else
+  assert(0, "SHM not supported on this platform");
+  return false;
+#endif // SUPPORTS_SHM
 }
 
 bool os::Linux::release_memory_special_huge_tlbfs(char* base, size_t bytes) {
