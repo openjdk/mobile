@@ -48,6 +48,10 @@
 #include <limits.h>
 #include <errno.h>
 
+#if defined(__ANDROID__) && !defined(ANDROID) 
+#define ANDROID 1
+#endif
+
 #if defined(LINUX) || defined(_ALLBSD_SOURCE)
 #include <inttypes.h>
 #include <signal.h>
