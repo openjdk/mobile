@@ -5248,7 +5248,7 @@ int os::loadavg(double loadavg[], int nelem) {
   struct sysinfo si;
   if (sysinfo(&si) == -1) return -1;
   for (int i = 0; i < nelem; ++i) {
-    averages[i] = static_cast<double>(si.loads[i]) / static_cast<double>(1 << SI_LOAD_SHIFT);
+    loadavg[i] = static_cast<double>(si.loads[i]) / static_cast<double>(1 << SI_LOAD_SHIFT);
   }
   return nelem;
 #endif
