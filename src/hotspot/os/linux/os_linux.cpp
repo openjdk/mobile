@@ -322,11 +322,11 @@ bool os::have_special_privileges() {
 
 
 #ifndef SYS_gettid
-// i386: 224, ia64: 1105, amd64: 186, sparc: 143
+// i386 & arm: 224, ia64: 1105, amd64: 186, sparc: 143, aarch64: 178
   #ifdef __ia64__
     #define SYS_gettid 1105
   #else
-    #ifdef __i386__
+    #if defined(__i386__) || defined(__arm__)
       #define SYS_gettid 224
     #else
       #ifdef __amd64__
@@ -334,6 +334,8 @@ bool os::have_special_privileges() {
       #else
         #ifdef __sparc__
           #define SYS_gettid 143
+        #elif defined(__arm64__) || defined(__aarch64__)
+          #define SYS_gettid 178
         #else
           #error define gettid for the arch
         #endif
@@ -1378,7 +1380,13 @@ const char* os::dll_file_extension() { return ".so"; }
 
 // This must be hard coded because it's the system's temporary
 // directory not the java application's temp directory, ala java.io.tmpdir.
-const char* os::get_temp_directory() { return "/tmp"; }
+const char* os::get_temp_directory() {
+#ifndef __ANDROID__
+  return "/tmp";
+#else
+  return "/data/tmp";
+#endif
+}
 
 static bool file_exists(const char* filename) {
   struct stat statbuf;
@@ -3847,6 +3855,8 @@ void os::large_page_init() {
   #define SHM_HUGETLB 04000
 #endif
 
+#ifndef __ANDROID__
+
 #define shm_warning_format(format, ...)              \
   do {                                               \
     if (UseLargePages &&                             \
@@ -3938,6 +3948,8 @@ static char* shmat_large_pages(int shmid, size_t bytes, size_t alignment, char* 
     return shmat_at_address(shmid, NULL);
   }
 }
+
+#endif // !__ANDROID__
 
 char* os::Linux::reserve_memory_special_shm(size_t bytes, size_t alignment,
                                             char* req_addr, bool exec) {
