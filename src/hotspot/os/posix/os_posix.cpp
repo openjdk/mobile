@@ -65,7 +65,9 @@
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
+#ifndef __ANDROID__
 #include <utmpx.h>
+#endif
 
 #ifdef __APPLE__
   #include <crt_externs.h>
@@ -418,6 +420,7 @@ void os::Posix::print_load_average(outputStream* st) {
 // unfortunately it does not work on macOS and Linux because the utx chain has no entry
 // for reboot at least on my test machines
 void os::Posix::print_uptime_info(outputStream* st) {
+#ifndef __ANDROID__
   int bootsec = -1;
   int currsec = time(NULL);
   struct utmpx* ent;
@@ -432,6 +435,7 @@ void os::Posix::print_uptime_info(outputStream* st) {
   if (bootsec != -1) {
     os::print_dhm(st, "OS uptime:", (long) (currsec-bootsec));
   }
+#endif
 }
 
 static void print_rlimit(outputStream* st, const char* msg,
