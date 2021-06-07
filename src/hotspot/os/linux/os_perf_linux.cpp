@@ -320,7 +320,7 @@ int getifaddrs(ifaddrs** out) {
   // The kernel keeps packets under 8KiB (NLMSG_GOODSIZE),
   // but that's a bit too large to go on the stack.
   size_t buf_len = 8192;
-  char* buf = NEW_C_HEAP_ARRAY(char, buf_len);
+  char* buf = NEW_C_HEAP_ARRAY(char, buf_len, mtInternal);
   if (buf == nullptr) return -1;
   // Open the netlink socket and ask for all the links and addresses.
   int fd = socket(PF_NETLINK, SOCK_RAW | SOCK_CLOEXEC, NETLINK_ROUTE);
