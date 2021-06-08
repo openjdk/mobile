@@ -48,7 +48,7 @@
 #include <limits.h>
 #include <errno.h>
 
-#if defined(__ANDROID__) && !defined(ANDROID) 
+#if defined(__ANDROID__) && !defined(ANDROID)
 #define ANDROID 1
 #endif
 
