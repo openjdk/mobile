@@ -164,12 +164,6 @@ struct ifaddrs_storage {
   sockaddr_storage netmask;
   sockaddr_storage ifa_ifu;
   char name[IFNAMSIZ + 1];
-  ifaddrs_storage(ifaddrs** list) {
-    memset(this, 0, sizeof(*this));
-    // push_front onto `list`.
-    ifa.ifa_next = *list;
-    *list = reinterpret_cast<ifaddrs*>(this);
-  }
   // Netlink gives us the address family in the header, and the
   // sockaddr_in or sockaddr_in6 bytes as the payload. We need to
   // stitch the two bits together into the sockaddr that's part of
@@ -219,6 +213,14 @@ struct ifaddrs_storage {
     return nullptr;
   }
 };
+ifaddrs_storage* new_ifaddrs_storage(ifaddrs** list) {
+  ifaddrs_storage *storage;
+  memset(storage, 0, sizeof(*storage));
+  // push_front onto `list`.
+  storage->ifa.ifa_next = *list;
+  *list = reinterpret_cast<ifaddrs*>(storage);
+  return storage;
+}
 #if !defined(__clang__)
 // GCC gets confused by NLMSG_DATA and doesn't realize that the old-style
 // cast is from a system header and should be ignored.
@@ -228,7 +230,7 @@ static void __handle_netlink_response(ifaddrs** out, nlmsghdr* hdr) {
   if (hdr->nlmsg_type == RTM_NEWLINK) {
     ifinfomsg* ifi = reinterpret_cast<ifinfomsg*>(NLMSG_DATA(hdr));
     // Create a new ifaddr entry, and set the interface index and flags.
-    ifaddrs_storage* new_addr = new ifaddrs_storage(out);
+    ifaddrs_storage* new_addr = new_ifaddrs_storage(out);
     new_addr->interface_index = ifi->ifi_index;
     new_addr->ifa.ifa_flags = ifi->ifi_flags;
     // Go through the various bits of information and find the name.
@@ -263,7 +265,7 @@ static void __handle_netlink_response(ifaddrs** out, nlmsghdr* hdr) {
     // If this is an unknown interface, ignore whatever we're being told about it.
     if (addr == nullptr) return;
     // Create a new ifaddr entry and copy what we already know.
-    ifaddrs_storage* new_addr = new ifaddrs_storage(out);
+    ifaddrs_storage* new_addr = new_ifaddrs_storage(out);
     // We can just copy the name rather than look for IFA_LABEL.
     strcpy(new_addr->name, addr->name);
     new_addr->ifa.ifa_name = new_addr->name;
