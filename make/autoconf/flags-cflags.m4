@@ -374,14 +374,15 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
   #### OS DEFINES, these should be independent on toolchain
   if test "x$OPENJDK_TARGET_OS" = xlinux; then
     CFLAGS_OS_DEF_JVM="-DLINUX"
-    CFLAGS_OS_DEF_JDK="-D_GNU_SOURCE -D_REENTRANT -D_LARGEFILE64_SOURCE"
+    # CFLAGS_OS_DEF_JDK="-D_GNU_SOURCE -D_REENTRANT -D_LARGEFILE64_SOURCE"
+    CFLAGS_OS_DEF_JDK="-D_GNU_SOURCE -D_REENTRANT -D_LARGEFILE64_SOURCE -target aarch64-linux-android -D__USE_BSD"
   elif test "x$OPENJDK_TARGET_OS" = xmacosx; then
     CFLAGS_OS_DEF_JVM="-D_ALLBSD_SOURCE -D_DARWIN_C_SOURCE -D_XOPEN_SOURCE"
     CFLAGS_OS_DEF_JDK="-D_ALLBSD_SOURCE -D_DARWIN_UNLIMITED_SELECT"
   elif test "x$OPENJDK_TARGET_OS" = xios; then
     CFLAGS_OS_DEF_JDK="-DMACOSX -D_ALLBSD_SOURCE -DTARGET_IOS -D_DARWIN_UNLIMITED_SELECT"
-  elif test "x$VAR_OS" = xandroid; then
-    CFLAGS_OS_DEF_JDK="-target aarch64-linux-android -D__USE_BSD"
+  # elif test "x$OPENJDK_TARGET_OS" = xandroid; then
+    # CFLAGS_OS_DEF_JDK="-target aarch64-linux-android -D__USE_BSD"
   elif test "x$OPENJDK_TARGET_OS" = xaix; then
     CFLAGS_OS_DEF_JVM="-DAIX"
   elif test "x$OPENJDK_TARGET_OS" = xbsd; then
