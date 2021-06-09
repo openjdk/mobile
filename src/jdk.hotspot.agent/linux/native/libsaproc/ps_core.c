@@ -30,9 +30,6 @@
 #include <stddef.h>
 #include <elf.h>
 #include <link.h>
-#ifdef __ANDROID__
-#include <linux/elfcore.h>
-#endif
 #include "libproc_impl.h"
 #include "ps_core_common.h"
 #include "proc_service.h"
