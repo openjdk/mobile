@@ -35,10 +35,10 @@
 m4_include([toolchain_microsoft.m4])
 
 # All valid toolchains, regardless of platform (used by help.m4)
-VALID_TOOLCHAINS_all="gcc clang xlc microsoft"
+VALID_TOOLCHAINS_all="clang gcc xlc microsoft"
 
 # These toolchains are valid on different platforms
-VALID_TOOLCHAINS_linux="gcc clang"
+VALID_TOOLCHAINS_linux="clang gcc"
 VALID_TOOLCHAINS_macosx="gcc clang"
 VALID_TOOLCHAINS_aix="xlc"
 VALID_TOOLCHAINS_windows="microsoft"
@@ -899,8 +899,8 @@ AC_DEFUN_ONCE([TOOLCHAIN_SETUP_BUILD_COMPILERS],
         UTIL_REQUIRE_PROGS(BUILD_CC, clang cc gcc)
         UTIL_REQUIRE_PROGS(BUILD_CXX, clang++ CC g++)
       else
-        UTIL_REQUIRE_PROGS(BUILD_CC, cc gcc)
-        UTIL_REQUIRE_PROGS(BUILD_CXX, CC g++)
+        UTIL_REQUIRE_PROGS(BUILD_CC, clang cc gcc)
+        UTIL_REQUIRE_PROGS(BUILD_CXX, clang++ CC g++)
       fi
       UTIL_LOOKUP_PROGS(BUILD_NM, nm gcc-nm)
       UTIL_LOOKUP_PROGS(BUILD_AR, ar gcc-ar lib)
