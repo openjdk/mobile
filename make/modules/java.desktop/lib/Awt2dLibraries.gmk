@@ -753,7 +753,7 @@ ifeq ($(ENABLE_HEADLESS_ONLY), false)
       LIBS_aix := -liconv, \
   ))
 
-  TARGETS += $(BUILD_LIBSPLASHSCREEN)
+  # TARGETS += $(BUILD_LIBSPLASHSCREEN)
 
   ifeq ($(call isTargetOs, macosx), true)
     $(BUILD_LIBSPLASHSCREEN): $(call FindLib, $(MODULE), osxapp)
