@@ -52,96 +52,96 @@ extern char **environ;
 static int
 posix_spawnattr_handle(const posix_spawnattr_t *attrp)
 {
-	struct sigaction sa;
-	int i;
-	if (attrp->posix_attr_flags & POSIX_SPAWN_SETSIGMASK)
-		sigprocmask(SIG_SETMASK, &attrp->posix_attr_sigmask, NULL);
-	if (attrp->posix_attr_flags & POSIX_SPAWN_SETSIGDEF) {
-		memset(&sa, 0, sizeof(sa));
-		sa.sa_handler = SIG_DFL;
-		for (i = 1; i < _NSIG; i++) {
-			if (sigismember(&attrp->posix_attr_sigdefault, i)) {
-				if (sigaction(i, &sa, NULL) == -1)
-					return -1;
-			}
-		}
-	}
-	return 0;
+  struct sigaction sa;
+  int i;
+  if (attrp->posix_attr_flags & POSIX_SPAWN_SETSIGMASK)
+    sigprocmask(SIG_SETMASK, &attrp->posix_attr_sigmask, NULL);
+  if (attrp->posix_attr_flags & POSIX_SPAWN_SETSIGDEF) {
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = SIG_DFL;
+    for (i = 1; i < _NSIG; i++) {
+      if (sigismember(&attrp->posix_attr_sigdefault, i)) {
+        if (sigaction(i, &sa, NULL) == -1)
+          return -1;
+      }
+    }
+  }
+  return 0;
 }
 
 inline static int
 is_vfork_safe(short int flags)
 {
-	return !(flags & (POSIX_SPAWN_SETSIGDEF | POSIX_SPAWN_SETSIGMASK));
+  return !(flags & (POSIX_SPAWN_SETSIGDEF | POSIX_SPAWN_SETSIGMASK));
 }
 
 int
 posix_spawn(pid_t *pid, const char *path,
-	const posix_spawn_file_actions_t *file_actions,
-	const posix_spawnattr_t *attrp,
-	char *const argv[], char *const envp[])
+  const posix_spawn_file_actions_t *file_actions,
+  const posix_spawnattr_t *attrp,
+  char *const argv[], char *const envp[])
 {
-	short int flags;
-	pid_t p;
-	volatile int error;
-	error = 0;
-	flags = attrp ? attrp->posix_attr_flags : 0;
-	if (file_actions == NULL && is_vfork_safe(flags))
-		p = vfork();
-	else
+  short int flags;
+  pid_t p;
+  volatile int error;
+  error = 0;
+  flags = attrp ? attrp->posix_attr_flags : 0;
+  if (file_actions == NULL && is_vfork_safe(flags))
+    p = vfork();
+  else
 #ifdef THERE_IS_NO_FORK
-		return ENOSYS;
+    return ENOSYS;
 #else
-		p = fork();
+    p = fork();
 #endif
-	switch (p) {
-	case -1:
-		return errno;
-	case 0:
-		if (attrp) {
-			error = posix_spawnattr_handle(attrp);
-			if (error)
-				_exit(127);
-		}
-		execve(path, argv, envp);
-		error = errno;
-		_exit(127);
-	default:
-		if (error != 0)
-			waitpid(p, NULL, WNOHANG);
-		else if (pid != NULL)
-			*pid = p;
-		return error;
-	}
+  switch (p) {
+  case -1:
+    return errno;
+  case 0:
+    if (attrp) {
+      error = posix_spawnattr_handle(attrp);
+      if (error)
+        _exit(127);
+    }
+    execve(path, argv, envp);
+    error = errno;
+    _exit(127);
+  default:
+    if (error != 0)
+      waitpid(p, NULL, WNOHANG);
+    else if (pid != NULL)
+      *pid = p;
+    return error;
+  }
 }
 
 int
 posix_spawnattr_init(posix_spawnattr_t *attr)
 {
-	memset(attr, 0, sizeof(*attr));
-	attr->posix_attr_flags = 0;
-	sigprocmask(0, NULL, &attr->posix_attr_sigmask);
-	sigemptyset(&attr->posix_attr_sigdefault);
-	return 0;
+  memset(attr, 0, sizeof(*attr));
+  attr->posix_attr_flags = 0;
+  sigprocmask(0, NULL, &attr->posix_attr_sigmask);
+  sigemptyset(&attr->posix_attr_sigdefault);
+  return 0;
 }
 
 int
 posix_spawnattr_setflags(posix_spawnattr_t *attr, short flags)
 {
-	attr->posix_attr_flags = flags;
-	return 0;
+  attr->posix_attr_flags = flags;
+  return 0;
 }
 
 int
 posix_spawnattr_setsigmask(posix_spawnattr_t *attr, const sigset_t *sigmask)
 {
-	attr->posix_attr_sigmask = *sigmask;
-	return 0;
+  attr->posix_attr_sigmask = *sigmask;
+  return 0;
 }
 
 int
 posix_spawnattr_setsigdefault(posix_spawnattr_t *attr, const sigset_t *sigmask)
 {
-	attr->posix_attr_sigdefault = *sigmask;
-	return 0;
+  attr->posix_attr_sigdefault = *sigmask;
+  return 0;
 }
