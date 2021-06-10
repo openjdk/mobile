@@ -39,6 +39,7 @@ typedef uint16_t char16_t;
 #include <iconv.h>
 #include <endian.h>
 #include <errno.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <uchar.h>
