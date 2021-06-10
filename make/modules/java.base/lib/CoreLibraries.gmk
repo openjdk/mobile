@@ -41,7 +41,7 @@ ifeq ($(OPENJDK_TARGET_OS), linux)
     OBJECT_DIR := $(SUPPORT_OUTPUTDIR)/native/$(MODULE)/libtinyiconv, \
     DEBUG_SYMBOLS := true))
 
-  BUILD_LIBRARIES += $(BUILD_LIBTINYICONV)
+  TARGETS += $(BUILD_LIBTINYICONV)
 endif
 
 ##########################################################################################
