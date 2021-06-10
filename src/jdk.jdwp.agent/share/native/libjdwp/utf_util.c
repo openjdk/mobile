@@ -483,7 +483,11 @@ static int iconvConvert(conv_direction drn, char *bytes, size_t len, char *outpu
         // locale is not initialized, do it now
         if (setlocale(LC_ALL, "") != NULL) {
             // nl_langinfo returns ANSI_X3.4-1968 by default
+#ifndef __ANDROID__
             codeset = (char*)nl_langinfo(CODESET);
+#else
+            codeset = "ASCII";
+#endif
         }
 
         if (codeset == NULL) {
