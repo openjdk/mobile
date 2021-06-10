@@ -31,11 +31,10 @@ ifeq ($(OPENJDK_TARGET_OS), linux)
   $(eval $(call SetupNativeCompilation,BUILD_LIBTINYICONV, \
     LIBRARY := tinyiconv, \
     OUTPUT_DIR := $(INSTALL_LIBRARIES_HERE), \
-    SRC := $(TOPDIR)/src/java.base/share/native/libtinyiconv, \
+    SRC := $(TOPDIR)/src/java.base/linux/native/libtinyiconv, \
     LANG := C++, \
     OPTIMIZATION := LOW, \
-    CXXFLAGS := $(CXXFLAGS_JDKLIB) \
-        -I$(JDK_TOPDIR)/src/share/tinyiconv, \
+    CXXFLAGS := $(CXXFLAGS_JDKLIB), \
     LDFLAGS := $(LDFLAGS_JDKLIB) $(LDFLAGS_CXX_JDK) \
         $(call SET_SHARED_LIBRARY_ORIGIN), \
     LDFLAGS_SUFFIX_posix := -lc, \
