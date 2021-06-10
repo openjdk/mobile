@@ -30,10 +30,6 @@
 
 #include <stdint.h>
 
-// for char16_t and char32_t
-typedef uint32_t char32_t;
-typedef uint16_t char16_t;
-
 #include <ctype.h>
 
 #include <iconv.h>
@@ -146,8 +142,10 @@ struct __iconv_t {
   Encoding src_encoding;
   Encoding dst_encoding;
   Mode mode;
+/*
   __iconv_t() : mode(ERROR) {
   }
+*/
   int Convert(char** src_buf0, size_t* src_bytes_left0, char** dst_buf0, size_t* dst_bytes_left0) {
     // Reset state.
     wc = 0;
@@ -363,10 +361,11 @@ struct __iconv_t {
 };
 
 iconv_t iconv_open(const char* __dst_encoding, const char* __src_encoding) {
-  iconv_t result = new __iconv_t;
+  iconv_t result = iconv_t();
+  &result->mode = ERROR;
   if (!__parse_encoding(__src_encoding, &result->src_encoding, 0 /* nullptr */) ||
       !__parse_encoding(__dst_encoding, &result->dst_encoding, &result->mode)) {
-    delete result;
+    free(result);
     errno = EINVAL;
     return INVALID_ICONV_T;
   }
@@ -388,7 +387,7 @@ int iconv_close(iconv_t __converter) {
     errno = EBADF;
     return -1;
   }
-  delete __converter;
+  free(__converter);
   return 0;
 }
 
