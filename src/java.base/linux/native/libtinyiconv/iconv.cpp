@@ -404,7 +404,7 @@ struct __iconv_t {
 
 iconv_t iconv_open(const char* __dst_encoding, const char* __src_encoding) {
   iconv_t result = iconv_t();
-  &result->mode = ERROR;
+  result->mode = ERROR;
   if (!__parse_encoding(__src_encoding, &result->src_encoding, 0 /* nullptr */) ||
       !__parse_encoding(__dst_encoding, &result->dst_encoding, &result->mode)) {
     free(result);
