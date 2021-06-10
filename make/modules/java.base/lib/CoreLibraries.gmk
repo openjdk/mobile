@@ -30,6 +30,7 @@ ifeq ($(OPENJDK_TARGET_OS), linux)
   BUILD_LIBTINYICONV_SRC := iconv.cpp
   $(eval $(call SetupJdkLibrary, BUILD_LIBTINYICONV, \
     NAME := tinyiconv, \
+    TYPE := STATIC_LIBRARY, \
     OUTPUT_DIR := $(INSTALL_LIBRARIES_HERE), \
     SRC := $(TOPDIR)/src/java.base/linux/native/libtinyiconv, \
     LANG := C++, \
