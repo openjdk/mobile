@@ -24,27 +24,6 @@
 #
 
 ##########################################################################################
-# Android doesn't have iconv, so we need build one.
-
-ifeq ($(OPENJDK_TARGET_OS), linux)
-  BUILD_LIBTINYICONV_SRC := iconv.cpp
-  $(eval $(call SetupJdkLibrary, BUILD_LIBTINYICONV, \
-    NAME := tinyiconv, \
-    OUTPUT_DIR := $(INSTALL_LIBRARIES_HERE), \
-    SRC := $(TOPDIR)/src/java.base/linux/native/libtinyiconv, \
-    LANG := C++, \
-    OPTIMIZATION := LOW, \
-    CXXFLAGS := $(CXXFLAGS_JDKLIB), \
-    LDFLAGS := $(LDFLAGS_JDKLIB) $(LDFLAGS_CXX_JDK) \
-        $(call SET_SHARED_LIBRARY_ORIGIN), \
-    LDFLAGS_SUFFIX_posix := -lc, \
-    OBJECT_DIR := $(SUPPORT_OUTPUTDIR)/native/$(MODULE)/libtinyiconv, \
-    DEBUG_SYMBOLS := true))
-
-  TARGETS += $(BUILD_LIBTINYICONV)
-endif
-
-##########################################################################################
 # libfdlibm is statically linked with libjava below and not delivered into the
 # product on its own.
 
