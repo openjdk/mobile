@@ -181,7 +181,7 @@ AC_DEFUN([FLAGS_SETUP_LDFLAGS_CPU_DEP],
     else
       # Android 5.x does not support GNU hash style
       # gnu
-      $1_CPU_LDFLAGS="${$1_CPU_LDFLAGS} -Wl,--hash-style=both"
+      $1_CPU_LDFLAGS="${$1_CPU_LDFLAGS} -Wl,--hash-style=sysv"
     fi
 
   elif test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
