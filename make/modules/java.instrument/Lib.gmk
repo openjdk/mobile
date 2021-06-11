@@ -36,7 +36,7 @@ endif
 $(eval $(call SetupJdkLibrary, BUILD_LIBINSTRUMENT, \
     NAME := instrument, \
     OPTIMIZATION := LOW, \
-    EXTRA_SRC := $(TOPDIR)/src/java.base/linux/native/libtinyiconv, \
+    EXTRA_SRC := java.base:libtinyiconv, \
     CFLAGS := $(CFLAGS_JDKLIB) $(LIBINSTRUMENT_CFLAGS), \
     CFLAGS_debug := -DJPLIS_LOGGING, \
     CFLAGS_release := -DNO_JPLIS_LOGGING, \
