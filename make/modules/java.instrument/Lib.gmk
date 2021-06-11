@@ -36,11 +36,11 @@ endif
 $(eval $(call SetupJdkLibrary, BUILD_LIBINSTRUMENT, \
     NAME := instrument, \
     OPTIMIZATION := LOW, \
+    EXTRA_SRC := $(TOPDIR)/src/java.base/linux/native/libtinyiconv, \
     CFLAGS := $(CFLAGS_JDKLIB) $(LIBINSTRUMENT_CFLAGS), \
     CFLAGS_debug := -DJPLIS_LOGGING, \
     CFLAGS_release := -DNO_JPLIS_LOGGING, \
     CXXFLAGS := $(CXXFLAGS_JDKLIB), \
-    CXXFLAGS_linux := $(TOPDIR)/src/java.base/linux/native/libtinyiconv/iconv.cpp \
     DISABLED_WARNINGS_gcc := unused-function, \
     EXTRA_HEADER_DIRS := java.base:libjli, \
     LDFLAGS := $(LDFLAGS_JDKLIB) \
