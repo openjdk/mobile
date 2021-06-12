@@ -51,7 +51,7 @@ $(eval $(call SetupJdkLibrary, BUILD_LIBINSTRUMENT, \
     LDFLAGS_aix := -L$(SUPPORT_OUTPUTDIR)/native/java.base, \
     LIBS := $(JDKLIB_LIBS), \
     LIBS_unix := -ljava -ljvm $(LIBZ_LIBS), \
-    LIBS_linux := -ltinyiconv -ljli $(LIBDL), \
+    LIBS_linux := -ljli $(LIBDL), \
     LIBS_aix := -liconv -ljli_static $(LIBDL), \
     LIBS_macosx := -ljli -liconv -framework Cocoa -framework Security \
         -framework ApplicationServices, \
