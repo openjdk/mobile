@@ -182,6 +182,8 @@ static int clock_tics_per_sec = 100;
 // avoid this
 static bool suppress_primordial_thread_resolution = false;
 
+static bool read_so_path_from_maps(const char* so_name, char* buf, int buflen);
+
 // utility functions
 
 julong os::available_memory() {
@@ -1526,6 +1528,30 @@ bool os::dll_address_to_library_name(address addr, char* buf,
 
   buf[0] = '\0';
   if (offset) *offset = -1;
+  return false;
+}
+
+static bool read_so_path_from_maps(const char* so_name, char* buf, int buflen) {
+  FILE *fp = fopen("/proc/self/maps", "r");
+  assert(fp, "Failed to open /proc/self/maps");
+  if (!fp) {
+    return false;
+  }
+
+  char maps_buffer[2048];
+  while (fgets(maps_buffer, 2048, fp) != NULL) {
+    if (strstr(maps_buffer, so_name) == NULL) {
+      continue;
+    }
+
+    char *so_path = strchr(maps_buffer, '/');
+    so_path[strlen(so_path) - 1] = '\0'; // Cut trailing \n
+    jio_snprintf(buf, buflen, "%s", so_path);
+    fclose(fp);
+    return true;
+  }
+
+  fclose(fp);
   return false;
 }
 
