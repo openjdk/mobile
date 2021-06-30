@@ -406,8 +406,8 @@ void os::setup_fpu() {
 #if !defined(__SOFTFP__) && defined(__VFP_FP__)
   // Turn on IEEE-754 compliant VFP mode
   __asm__ volatile (
-    "mov %%r0, #0;"
-    "fmxr fpscr, %%r0"
+    "mov r0, #0;"
+    "fmxr fpscr, r0"
     : /* no output */ : /* no input */ : "r0"
   );
 #endif
