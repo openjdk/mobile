@@ -418,14 +418,14 @@ bool PosixSignals::pd_hotspot_signal_handler(int sig, siginfo_t* info,
 }
 
 void os::Linux::init_thread_fpu_state(void) {
-#ifndef AMD64
+#if !defined(AMD64) && !defined(__ANDROID__)
   // set fpu to 53 bit precision
   set_fpu_control_word(0x27f);
 #endif // !AMD64
 }
 
 int os::Linux::get_fpu_control_word(void) {
-#ifdef AMD64
+#if defined(AMD64) || defined(__ANDROID__)
   return 0;
 #else
   int fpu_control;
@@ -435,7 +435,7 @@ int os::Linux::get_fpu_control_word(void) {
 }
 
 void os::Linux::set_fpu_control_word(int fpu_control) {
-#ifndef AMD64
+#if !defined(AMD64) && !defined(__ANDROID__)
   _FPU_SETCW(fpu_control);
 #endif // !AMD64
 }
@@ -614,7 +614,7 @@ void os::print_register_info(outputStream *st, const void *context) {
 }
 
 void os::setup_fpu() {
-#ifndef AMD64
+#if !defined(AMD64) && !defined(__ANDROID__)
   address fpu_cntrl = StubRoutines::x86::addr_fpu_cntrl_wrd_std();
   __asm__ volatile (  "fldcw (%0)" :
                       : "r" (fpu_cntrl) : "memory");
