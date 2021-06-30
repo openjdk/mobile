@@ -73,7 +73,7 @@
 # include <pwd.h>
 # include <poll.h>
 # include <ucontext.h>
-#if !defined(AMD64) || !defined(__ANDROID__)
+#if !defined(__ANDROID__) || !defined(AMD64)
 # include <fpu_control.h>
 #endif
 
