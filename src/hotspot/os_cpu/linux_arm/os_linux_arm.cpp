@@ -72,6 +72,8 @@
 # include <ucontext.h>
 #ifndef __ANDROID__
 # include <fpu_control.h>
+#else
+# include "fpu_control.h" //include the local header
 #endif
 # include <asm/ptrace.h>
 
