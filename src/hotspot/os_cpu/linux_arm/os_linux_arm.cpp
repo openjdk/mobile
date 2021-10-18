@@ -85,8 +85,14 @@
 #endif
 
 address os::current_stack_pointer() {
+#if defined(__clang__) || defined(__llvm__)
+  void *sp;
+  __asm__("mov %0, " SPELL_REG_SP : "=r"(sp));
+  return (address) sp;
+#else
   register address sp __asm__ (SPELL_REG_SP);
   return sp;
+#endif
 }
 
 char* os::non_memory_address_word() {
