@@ -65,7 +65,8 @@ ifeq ($(call isTargetOs, linux), true)
 	#
   endif
 
-  ifeq ($(call isTargetCpu, x86), true)
+  #ifeq ($(call isTargetCpu, x86), true)
+  ifeq (false, true)
     # Performance measurements show that by compiling GC related code, we could
     # significantly reduce the GC pause time on 32 bit Linux/Unix platforms by
     # compiling without the PIC flag (-fPIC on linux).
