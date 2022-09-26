@@ -585,17 +585,7 @@ const char*
 SetExecname(char **argv)
 {
     char* exec_path = NULL;
-#if defined(__linux__)
-    {
-        const char* self = "/proc/self/exe";
-        char buf[PATH_MAX+1];
-        int len = readlink(self, buf, PATH_MAX);
-        if (len >= 0) {
-            buf[len] = '\0';            /* readlink(2) doesn't NUL terminate */
-            exec_path = JLI_StringDup(buf);
-        }
-    }
-#elif defined(__ANDROID__)
+#if defined(__ANDROID__) //Since both __ANDROID__ and __linux__ are defined, we must let the preprocessor preprocess the __ANDRIOD__ part first
     char *__java_home = getenv("JAVA_HOME");
     // From http://hg.openjdk.java.net/mobile/jdk9/jdk/file/17bb8a98d5e3/src/java.base/unix/native/libjli/java_md_solinux.c#l844
         /* For Android, 'self' would point to /system/bin/app_process
@@ -646,9 +636,15 @@ SetExecname(char **argv)
             }
         }
         exec_path = JLI_StringDup(buf);
-#else /* !__linux__ */
+#elif defined(__linux__)
     {
-        /* Not implemented */
+        const char* self = "/proc/self/exe";
+        char buf[PATH_MAX+1];
+        int len = readlink(self, buf, PATH_MAX);
+        if (len >= 0) {
+            buf[len] = '\0';            /* readlink(2) doesn't NUL terminate */
+            exec_path = JLI_StringDup(buf);
+        }
     }
 #endif
 
