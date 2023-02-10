@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -77,6 +77,9 @@ import jdk.internal.vm.annotation.IntrinsicCandidate;
  * {@code StrictMath} methods <a
  * href="Math.html#Ieee754RecommendedOps">relate to the IEEE 754
  * recommended operations</a>.
+ *
+ * @see <a href="https://standards.ieee.org/ieee/754/6210/">
+ *      <cite>IEEE Standard for Floating-Point Arithmetic</cite></a>
  *
  * @author  Joseph D. Darcy
  * @since   1.3
@@ -278,7 +281,9 @@ public final class StrictMath {
      * @return  the base 10 logarithm of  {@code a}.
      * @since 1.5
      */
-    public static native double log10(double a);
+    public static double log10(double a) {
+        return FdLibm.Log10.compute(a);
+    }
 
     /**
      * Returns the correctly rounded positive square root of a
@@ -2088,7 +2093,9 @@ public final class StrictMath {
      * @return  the value <i>e</i><sup>{@code x}</sup>&nbsp;-&nbsp;1.
      * @since 1.5
      */
-    public static native double expm1(double x);
+    public static double expm1(double x) {
+        return FdLibm.Expm1.compute(x);
+    }
 
     /**
      * Returns the natural logarithm of the sum of the argument and 1.
@@ -2119,7 +2126,9 @@ public final class StrictMath {
      * log of {@code x}&nbsp;+&nbsp;1
      * @since 1.5
      */
-    public static native double log1p(double x);
+    public static double log1p(double x) {
+        return FdLibm.Log1p.compute(x);
+    }
 
     /**
      * Returns the first floating-point argument with the sign of the

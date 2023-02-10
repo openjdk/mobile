@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -103,7 +103,6 @@ jfieldID ni_bindsID;
 jfieldID ni_virutalID;
 jfieldID ni_childsID;
 jfieldID ni_parentID;
-jfieldID ni_defaultIndexID;
 jmethodID ni_ctrID;
 
 static jclass ni_ibcls;
@@ -189,9 +188,7 @@ JNIEXPORT void JNICALL Java_java_net_NetworkInterface_init
     CHECK_NULL(ni_ib4broadcastID);
     ni_ib4maskID = (*env)->GetFieldID(env, ni_ibcls, "maskLength", "S");
     CHECK_NULL(ni_ib4maskID);
-    ni_defaultIndexID = (*env)->GetStaticFieldID(env, ni_class, "defaultIndex",
-                                                 "I");
-    CHECK_NULL(ni_defaultIndexID);
+
     initInetAddressIDs(env);
 }
 
@@ -706,7 +703,6 @@ static jobject createNetworkInterface(JNIEnv *env, netif *ifs) {
     jobjectArray addrArr;
     jobjectArray bindArr;
     jobjectArray childArr;
-    netaddr *addrs;
     jint addr_index, addr_count, bind_index;
     jint child_count, child_index;
     netaddr *addrP;
@@ -904,7 +900,6 @@ static netif *enumInterfaces(JNIEnv *env) {
  */
 static void freeif(netif *ifs) {
     netif *currif = ifs;
-    netif *child = NULL;
 
     while (currif != NULL) {
         netaddr *addrP = currif->addr;

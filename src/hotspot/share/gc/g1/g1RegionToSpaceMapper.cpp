@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2001, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,6 +26,7 @@
 #include "gc/g1/g1BiasedArray.hpp"
 #include "gc/g1/g1NUMA.hpp"
 #include "gc/g1/g1RegionToSpaceMapper.hpp"
+#include "gc/shared/gc_globals.hpp"
 #include "memory/allocation.inline.hpp"
 #include "memory/virtualspace.hpp"
 #include "runtime/mutexLocker.hpp"
@@ -42,7 +43,6 @@ G1RegionToSpaceMapper::G1RegionToSpaceMapper(ReservedSpace rs,
                                              MEMFLAGS type) :
   _listener(NULL),
   _storage(rs, used_size, page_size),
-  _region_granularity(region_granularity),
   _region_commit_map(rs.size() * commit_factor / region_granularity, mtGC),
   _memory_type(type) {
   guarantee(is_power_of_2(page_size), "must be");

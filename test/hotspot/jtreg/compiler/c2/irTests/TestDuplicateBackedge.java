@@ -24,13 +24,13 @@
 package compiler.c2.irTests;
 
 import compiler.lib.ir_framework.*;
-import java.util.Objects;
 
 /*
  * @test
  * @bug 8279888
  * @summary Local variable independently used by multiple loops can interfere with loop optimizations
  * @library /test/lib /
+ * @requires vm.compiler2.enabled
  * @run driver compiler.c2.irTests.TestDuplicateBackedge
  */
 
@@ -41,9 +41,9 @@ public class TestDuplicateBackedge {
     }
 
     @Test
-    @IR(applyIf = { "DuplicateBackedge", "true" }, counts = { IRNode.LOOP, "1", IRNode.COUNTEDLOOP, "1" })
+    @IR(applyIf = { "DuplicateBackedge", "true" }, counts = {IRNode.LOOP, "1", IRNode.COUNTED_LOOP, "1" })
     @IR(applyIf = { "DuplicateBackedge", "false" }, counts = { IRNode.LOOP, "1" })
-    @IR(applyIf = { "DuplicateBackedge", "false" }, failOn = { IRNode.COUNTEDLOOP })
+    @IR(applyIf = { "DuplicateBackedge", "false" }, failOn = { IRNode.COUNTED_LOOP})
     public static float test() {
         float res = 1;
         for (int i = 1;;) {

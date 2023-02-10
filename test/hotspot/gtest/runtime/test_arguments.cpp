@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2016, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -28,6 +28,7 @@
 #include "runtime/flags/jvmFlag.hpp"
 #include "utilities/align.hpp"
 #include "utilities/globalDefinitions.hpp"
+
 #include <errno.h>
 
 class ArgumentsTest : public ::testing::Test {
@@ -200,7 +201,7 @@ TEST_VM_F(ArgumentsTest, parse_xss) {
   // Test value aligned both to K and vm_page_size.
   {
     EXPECT_TRUE(is_aligned(32 * M, K));
-    EXPECT_TRUE(is_aligned(32 * M, (size_t)os::vm_page_size()));
+    EXPECT_TRUE(is_aligned(32 * M, os::vm_page_size()));
     EXPECT_EQ(parse_xss_inner(to_string(32 * M), JNI_OK), (intx)(32 * M / K));
   }
 
@@ -593,13 +594,13 @@ TEST_VM_F(ArgumentsTest, set_numeric_flag_double) {
   for (uint i = 0; i < ARRAY_SIZE(more_test_strings); i++) {
     const char* str = more_test_strings[i];
 
-    char* dummy;
+    char* end;
     errno = 0;
-    double expected = strtod(str, &dummy);
-    if (errno == 0) {
+    double expected = strtod(str, &end);
+    if (errno == 0 && end != NULL && *end == '\0') {
       ASSERT_TRUE(ArgumentsTest::parse_argument(flag->name(), str))
         << "Test string '" <<
-        str << "' did not parse for type " << flag->type_string() << ".";
+        str << "' did not parse for type " << flag->type_string() << ". (Expected value = " << expected << ")";
       double d = flag->get_double();
       ASSERT_TRUE(d == expected)
         << "Parsed number " << d << " is not the same as expected " << expected;

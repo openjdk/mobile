@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -40,6 +40,7 @@
 #include "runtime/interfaceSupport.inline.hpp"
 #include "runtime/sharedRuntime.hpp"
 #include "runtime/vm_version.hpp"
+#include "sanitizers/leak.hpp"
 #include "utilities/bitMap.inline.hpp"
 #include "utilities/macros.hpp"
 
@@ -50,6 +51,8 @@ Compiler::Compiler() : AbstractCompiler(compiler_c1) {
 void Compiler::init_c1_runtime() {
   BufferBlob* buffer_blob = CompilerThread::current()->get_buffer_blob();
   Arena* arena = new (mtCompiler) Arena(mtCompiler);
+  // Ignore leaked arena, it is used by ValueType and Interval during initialization.
+  LSAN_IGNORE_OBJECT(arena);
   Runtime1::initialize(buffer_blob);
   FrameMap::initialize();
   // initialize data structures
@@ -152,7 +155,9 @@ bool Compiler::is_intrinsic_supported(const methodHandle& method) {
   case vmIntrinsics::_isInstance:
   case vmIntrinsics::_isPrimitive:
   case vmIntrinsics::_getModifiers:
+  case vmIntrinsics::_currentCarrierThread:
   case vmIntrinsics::_currentThread:
+  case vmIntrinsics::_scopedValueCache:
   case vmIntrinsics::_dabs:
   case vmIntrinsics::_dsqrt:
   case vmIntrinsics::_dsqrt_strict:
@@ -225,7 +230,6 @@ bool Compiler::is_intrinsic_supported(const methodHandle& method) {
   case vmIntrinsics::_putCharStringU:
 #ifdef JFR_HAVE_INTRINSICS
   case vmIntrinsics::_counterTime:
-  case vmIntrinsics::_getEventWriter:
 #endif
   case vmIntrinsics::_getObjectSize:
     break;

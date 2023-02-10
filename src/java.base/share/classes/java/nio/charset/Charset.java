@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,9 +25,11 @@
 
 package java.nio.charset;
 
+import jdk.internal.misc.ThreadTracker;
 import jdk.internal.misc.VM;
+import jdk.internal.util.StaticProperty;
+import jdk.internal.vm.annotation.Stable;
 import sun.nio.cs.ThreadLocalCoders;
-import sun.security.action.GetPropertyAction;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -370,9 +372,17 @@ public abstract class Charset
             };
     }
 
-    // Thread-local gate to prevent recursive provider lookups
-    private static ThreadLocal<ThreadLocal<?>> gate =
-            new ThreadLocal<ThreadLocal<?>>();
+    private static class ThreadTrackHolder {
+        static final ThreadTracker TRACKER = new ThreadTracker();
+    }
+
+    private static Object tryBeginLookup() {
+        return ThreadTrackHolder.TRACKER.tryBegin();
+    }
+
+    private static void endLookup(Object key) {
+        ThreadTrackHolder.TRACKER.end(key);
+    }
 
     @SuppressWarnings("removal")
     private static Charset lookupViaProviders(final String charsetName) {
@@ -388,12 +398,12 @@ public abstract class Charset
         if (!VM.isBooted())
             return null;
 
-        if (gate.get() != null)
+        Object key = tryBeginLookup();
+        if (key == null) {
             // Avoid recursive provider lookups
             return null;
+        }
         try {
-            gate.set(gate);
-
             return AccessController.doPrivileged(
                 new PrivilegedAction<>() {
                     public Charset run() {
@@ -409,7 +419,7 @@ public abstract class Charset
                 });
 
         } finally {
-            gate.set(null);
+            endLookup(key);
         }
     }
 
@@ -566,8 +576,7 @@ public abstract class Charset
     private static void put(Iterator<Charset> i, Map<String,Charset> m) {
         while (i.hasNext()) {
             Charset cs = i.next();
-            if (!m.containsKey(cs.name()))
-                m.put(cs.name(), cs);
+            m.putIfAbsent(cs.name(), cs);
         }
     }
 
@@ -619,7 +628,7 @@ public abstract class Charset
             });
     }
 
-    private static volatile Charset defaultCharset;
+    private @Stable static Charset defaultCharset;
 
     /**
      * Returns the default charset of this Java virtual machine.
@@ -642,9 +651,8 @@ public abstract class Charset
     public static Charset defaultCharset() {
         if (defaultCharset == null) {
             synchronized (Charset.class) {
-                String csn = GetPropertyAction
-                        .privilegedGetProperty("file.encoding");
-                Charset cs = lookup(csn);
+                // do not look for providers other than the standard one
+                Charset cs = standardProvider.charsetForName(StaticProperty.fileEncoding());
                 if (cs != null)
                     defaultCharset = cs;
                 else
@@ -709,7 +717,7 @@ public abstract class Charset
         if (aliasSet != null)
             return aliasSet;
         int n = aliases.length;
-        HashSet<String> hs = new HashSet<>(n);
+        HashSet<String> hs = HashSet.newHashSet(n);
         for (int i = 0; i < n; i++)
             hs.add(aliases[i]);
         aliasSet = Collections.unmodifiableSet(hs);

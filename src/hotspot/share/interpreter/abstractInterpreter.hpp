@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -31,7 +31,7 @@
 #include "interpreter/bytecodes.hpp"
 #include "oops/method.hpp"
 #include "runtime/frame.hpp"
-#include "runtime/thread.hpp"
+#include "runtime/javaThread.hpp"
 #include "runtime/vmThread.hpp"
 
 // This file contains the platform-independent parts
@@ -157,7 +157,9 @@ class AbstractInterpreter: AllStatic {
       case vmIntrinsics::_dexp  : // fall thru
       case vmIntrinsics::_fmaD  : // fall thru
       case vmIntrinsics::_fmaF  : // fall thru
+      case vmIntrinsics::_Continuation_doYield : // fall thru
         return false;
+
       default:
         return true;
     }
@@ -166,8 +168,8 @@ class AbstractInterpreter: AllStatic {
   // Runtime support
 
   // length = invoke bytecode length (to advance to next bytecode)
-  static address deopt_entry(TosState state, int length) { ShouldNotReachHere(); return NULL; }
-  static address return_entry(TosState state, int length, Bytecodes::Code code) { ShouldNotReachHere(); return NULL; }
+  static address deopt_entry(TosState state, int length) { ShouldNotReachHere(); return nullptr; }
+  static address return_entry(TosState state, int length, Bytecodes::Code code) { ShouldNotReachHere(); return nullptr; }
 
   static address    rethrow_exception_entry()                   { return _rethrow_exception_entry; }
 
@@ -293,7 +295,7 @@ class AbstractInterpreterGenerator: public StackObj {
   InterpreterMacroAssembler* _masm;
 
  public:
-  AbstractInterpreterGenerator(StubQueue* _code);
+  AbstractInterpreterGenerator();
 };
 
 #endif // SHARE_INTERPRETER_ABSTRACTINTERPRETER_HPP

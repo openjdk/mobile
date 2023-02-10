@@ -1727,6 +1727,19 @@ void PhaseChaitin::fixup_spills() {
           if( cisc->oper_input_base() > 1 && mach->oper_input_base() <= 1 ) {
             assert( cisc->oper_input_base() == 2, "Only adding one edge");
             cisc->ins_req(1,src);         // Requires a memory edge
+          } else {
+            // There is no space reserved for a memory edge before the inputs for
+            // instructions which have "stackSlotX" parameter instead of "memory".
+            // For example, "MoveF2I_stack_reg". We always need a memory edge from
+            // src to cisc, else we might schedule cisc before src, loading from a
+            // spill location before storing the spill. On some platforms, we land
+            // in this else case because mach->oper_input_base() > 1, i.e. we have
+            // multiple inputs. In some rare cases there are even multiple memory
+            // operands, before and after spilling.
+            // (e.g. spilling "addFPR24_reg_mem" to "addFPR24_mem_cisc")
+            // In either case, there is no space in the inputs for the memory edge
+            // so we add an additional precedence / memory edge.
+            cisc->add_prec(src);
           }
           block->map_node(cisc, j);          // Insert into basic block
           n->subsume_by(cisc, C); // Correct graph
@@ -2170,42 +2183,42 @@ void PhaseChaitin::dump_simplified() const {
   tty->cr();
 }
 
-static char *print_reg(OptoReg::Name reg, const PhaseChaitin* pc, char* buf) {
+static char *print_reg(OptoReg::Name reg, const PhaseChaitin* pc, char* buf, size_t buf_size) {
   if ((int)reg < 0)
-    sprintf(buf, "<OptoReg::%d>", (int)reg);
+    os::snprintf_checked(buf, buf_size, "<OptoReg::%d>", (int)reg);
   else if (OptoReg::is_reg(reg))
     strcpy(buf, Matcher::regName[reg]);
   else
-    sprintf(buf,"%s + #%d",OptoReg::regname(OptoReg::c_frame_pointer),
+    os::snprintf_checked(buf, buf_size, "%s + #%d",OptoReg::regname(OptoReg::c_frame_pointer),
             pc->reg2offset(reg));
   return buf+strlen(buf);
 }
 
 // Dump a register name into a buffer.  Be intelligent if we get called
 // before allocation is complete.
-char *PhaseChaitin::dump_register(const Node* n, char* buf) const {
+char *PhaseChaitin::dump_register(const Node* n, char* buf, size_t buf_size) const {
   if( _node_regs ) {
     // Post allocation, use direct mappings, no LRG info available
-    print_reg( get_reg_first(n), this, buf );
+    print_reg( get_reg_first(n), this, buf, buf_size);
   } else {
     uint lidx = _lrg_map.find_const(n); // Grab LRG number
     if( !_ifg ) {
-      sprintf(buf,"L%d",lidx);  // No register binding yet
+      os::snprintf_checked(buf, buf_size, "L%d",lidx);  // No register binding yet
     } else if( !lidx ) {        // Special, not allocated value
       strcpy(buf,"Special");
     } else {
       if (lrgs(lidx)._is_vector) {
         if (lrgs(lidx).mask().is_bound_set(lrgs(lidx).num_regs()))
-          print_reg( lrgs(lidx).reg(), this, buf ); // a bound machine register
+          print_reg( lrgs(lidx).reg(), this, buf, buf_size); // a bound machine register
         else
-          sprintf(buf,"L%d",lidx); // No register binding yet
+          os::snprintf_checked(buf, buf_size, "L%d",lidx); // No register binding yet
       } else if( (lrgs(lidx).num_regs() == 1)
                  ? lrgs(lidx).mask().is_bound1()
                  : lrgs(lidx).mask().is_bound_pair() ) {
         // Hah!  We have a bound machine register
-        print_reg( lrgs(lidx).reg(), this, buf );
+        print_reg( lrgs(lidx).reg(), this, buf, buf_size);
       } else {
-        sprintf(buf,"L%d",lidx); // No register binding yet
+        os::snprintf_checked(buf, buf_size, "L%d",lidx); // No register binding yet
       }
     }
   }

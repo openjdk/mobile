@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2001, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -32,7 +32,8 @@ class Generation;
 class CardTableRS;
 class CardTableBarrierSet;
 class DefNewGeneration;
-class KlassRemSet;
+class Method;
+class nmethod;
 
 #if INCLUDE_SERIALGC
 
@@ -83,7 +84,7 @@ public:
   DefNewScanClosure(DefNewGeneration* g);
 
   void set_scanned_cld(ClassLoaderData* cld) {
-    assert(cld == NULL || _scanned_cld == NULL, "Must be");
+    assert(cld == nullptr || _scanned_cld == nullptr, "Must be");
     _scanned_cld = cld;
   }
 
@@ -98,27 +99,6 @@ class CLDScanClosure: public CLDClosure {
        _scavenge_closure(scavenge_closure) {}
   void do_cld(ClassLoaderData* cld);
 };
-
-#endif // INCLUDE_SERIALGC
-
-class FilteringClosure: public OopIterateClosure {
- private:
-  HeapWord*   _boundary;
-  OopIterateClosure* _cl;
- protected:
-  template <class T> inline void do_oop_work(T* p);
- public:
-  FilteringClosure(HeapWord* boundary, OopIterateClosure* cl) :
-    OopIterateClosure(cl->ref_discoverer()), _boundary(boundary),
-    _cl(cl) {}
-  virtual void do_oop(oop* p);
-  virtual void do_oop(narrowOop* p);
-  virtual bool do_metadata()            { assert(!_cl->do_metadata(), "assumption broken, must change to 'return _cl->do_metadata()'"); return false; }
-  virtual void do_klass(Klass*)         { ShouldNotReachHere(); }
-  virtual void do_cld(ClassLoaderData*) { ShouldNotReachHere(); }
-};
-
-#if INCLUDE_SERIALGC
 
 // Closure for scanning DefNewGeneration's weak references.
 //  -- weak references are processed all at once,
