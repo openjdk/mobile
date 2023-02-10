@@ -80,7 +80,7 @@ TARGETS += $(BUILD_LIBVERIFY)
 
 LIBJAVA_CFLAGS := -DARCHPROPNAME='"$(OPENJDK_TARGET_CPU_OSARCH)"'
 
-ifeq ($(call isTargetOs, macosx), true)
+ifeq ($(call isTargetOs, macosx ios), true)
   BUILD_LIBJAVA_java_props_md.c_CFLAGS := -x objective-c
   BUILD_LIBJAVA_java_props_macosx.c_CFLAGS := -x objective-c
 endif
@@ -166,7 +166,7 @@ TARGETS += $(BUILD_LIBJIMAGE)
 
 ##########################################################################################
 
-ifeq ($(call isTargetOs, macosx), true)
+ifeq ($(call isTargetOs, macosx ios), true)
   LIBJLI_EXCLUDE_FILES += java_md.c
 endif
 
@@ -202,6 +202,7 @@ $(eval $(call SetupJdkLibrary, BUILD_LIBJLI, \
     EXTRA_FILES := $(LIBJLI_EXTRA_FILES), \
     OPTIMIZATION := HIGH, \
     CFLAGS := $(CFLAGS_JDKLIB) $(LIBJLI_CFLAGS), \
+    CFLAGS_ios := -I$(TOPDIR)/src/java.base/macosx/native/libjli, \
     DISABLED_WARNINGS_gcc := unused-function implicit-fallthrough, \
     DISABLED_WARNINGS_clang := sometimes-uninitialized format-nonliteral, \
     LDFLAGS := $(LDFLAGS_JDKLIB) \
