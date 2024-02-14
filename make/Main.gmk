@@ -242,7 +242,7 @@ define DeclareHotspotGensrcRecipe
 	    JVM_VARIANT=$1)
 endef
 
-ifeq ($(call isTargetOs, android), false)
+ifeq ($(call isTargetOs, android ios), false)
   $(foreach v, $(JVM_VARIANTS), $(eval $(call DeclareHotspotGensrcRecipe,$v)))
 endif
 
@@ -260,7 +260,7 @@ define DeclareHotspotStaticLibsRecipe
 	    JVM_VARIANT=$1 STATIC_LIBS=true)
 endef
 
-ifeq ($(call isTargetOs, android), false)
+ifeq ($(call isTargetOs, android ios), false)
   $(foreach v, $(JVM_VARIANTS), $(eval $(call DeclareHotspotStaticLibsRecipe,$v)))
 endif
 

@@ -29,7 +29,7 @@ include LibCommon.gmk
 
 ifeq ($(call isTargetOsType, unix), true)
 
-  ifeq ($(call isTargetOs, macosx aix), false)
+  ifeq ($(call isTargetOs, macosx ios aix), false)
     $(eval $(call SetupJdkLibrary, BUILD_LIBSCTP, \
         NAME := sctp, \
         OPTIMIZATION := LOW, \
