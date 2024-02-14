@@ -63,6 +63,8 @@ else
 endif
 $(BUILD_LIBINSTRUMENT): $(call FindLib, java.base, java)
 
-TARGETS += $(BUILD_LIBINSTRUMENT)
+ifeq ($(call isTargetOs, android), false)
+  TARGETS += $(BUILD_LIBINSTRUMENT)
+endif
 
 ################################################################################

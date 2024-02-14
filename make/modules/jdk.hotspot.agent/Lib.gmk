@@ -74,6 +74,8 @@ $(eval $(call SetupJdkLibrary, BUILD_LIBSA, \
     LIBS_windows := dbgeng.lib $(WIN_JAVA_LIB), \
 ))
 
-TARGETS += $(BUILD_LIBSA)
+ifeq ($(call isTargetOs, android), false)
+  TARGETS += $(BUILD_LIBSA)
+endif
 
 ################################################################################

@@ -242,7 +242,9 @@ define DeclareHotspotGensrcRecipe
 	    JVM_VARIANT=$1)
 endef
 
-$(foreach v, $(JVM_VARIANTS), $(eval $(call DeclareHotspotGensrcRecipe,$v)))
+ifeq ($(call isTargetOs, android), false)
+  $(foreach v, $(JVM_VARIANTS), $(eval $(call DeclareHotspotGensrcRecipe,$v)))
+endif
 
 define DeclareHotspotLibsRecipe
   hotspot-$1-libs:
@@ -258,7 +260,9 @@ define DeclareHotspotStaticLibsRecipe
 	    JVM_VARIANT=$1 STATIC_LIBS=true)
 endef
 
-$(foreach v, $(JVM_VARIANTS), $(eval $(call DeclareHotspotStaticLibsRecipe,$v)))
+ifeq ($(call isTargetOs, android), false)
+  $(foreach v, $(JVM_VARIANTS), $(eval $(call DeclareHotspotStaticLibsRecipe,$v)))
+endif
 
 $(eval $(call SetupTarget, hotspot-ide-project, \
     MAKEFILE := ide/visualstudio/hotspot/CreateVSProject, \

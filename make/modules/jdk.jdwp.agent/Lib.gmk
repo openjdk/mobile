@@ -71,7 +71,9 @@ $(eval $(call SetupJdkLibrary, BUILD_LIBJDWP, \
 
 $(BUILD_LIBJDWP): $(call FindLib, java.base, java)
 
-TARGETS += $(BUILD_LIBJDWP)
+ifeq ($(call isTargetOs, android), false)
+  TARGETS += $(BUILD_LIBJDWP)
+endif
 
 ################################################################################
 
