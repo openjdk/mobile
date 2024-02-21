@@ -41,6 +41,10 @@ runs:
       id: bundles
       run: |
         # Rename bundles to consistent names
+        echo "build/${{ inputs.platform }} contents..."
+        ls build/${{ inputs.platform }}
+        echo "static libs contents..."
+        ls build/${{ inputs.platform }}/images/static-libs/
         jdk_bundle_zip="$(ls build/*/bundles/jdk-*_bin${{ inputs.debug-suffix }}.zip 2> /dev/null || true)"
         jdk_bundle_tar_gz="$(ls build/*/bundles/jdk-*_bin${{ inputs.debug-suffix }}.tar.gz 2> /dev/null || true)"
         symbols_bundle="$(ls build/*/bundles/jdk-*_bin${{ inputs.debug-suffix }}-symbols.tar.gz 2> /dev/null || true)"
@@ -60,6 +64,10 @@ runs:
         if [[ "$tests_bundle" != "" ]]; then
           mv "$tests_bundle" "bundles/tests-${{ inputs.platform }}${{ inputs.debug-suffix }}.tar.gz"
         fi
+        
+        echo "bundles contents..."
+        ls bundles
+        echo "input platform: ${{ inputs.platform }}"
 
         if [[ "$jdk_bundle_zip$jdk_bundle_tar_gz$symbols_bundle$tests_bundle" != "" ]]; then
           echo 'bundles-found=true' >> $GITHUB_OUTPUT
@@ -75,3 +83,11 @@ runs:
         path: bundles
         retention-days: 1
       if: steps.bundles.outputs.bundles-found == 'true'
+
+    - name: 'Upload static image artifact'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.platform }}
+        path: build/${{ inputs.platform }}/images/static-libs/
+        retention-days: 1
+      if: inputs.platform == 'android-linux-aarch64' || inputs.platform == 'ios-macos-aarch64'
