@@ -39,6 +39,14 @@ while test $# -gt 0 ; do
     case $1 in
         -- )   # Stop option processing
             shift; break ;;
+        *-ios* )
+            echo $1
+            exit
+            ;;
+        *-android* )
+            echo $1
+            exit
+            ;;
         - )    # Use stdin as input.
             sub_args="$sub_args $1"
             shift; break ;;
