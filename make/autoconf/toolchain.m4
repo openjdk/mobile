@@ -186,7 +186,7 @@ AC_DEFUN([TOOLCHAIN_SETUP_FILENAME_PATTERNS],
     STATIC_LIBRARY='lib[$]1.a'
     OBJ_SUFFIX='.o'
     EXECUTABLE_SUFFIX=''
-    if test "x$OPENJDK_TARGET_OS" = xmacosx; then
+    if test "x$OPENJDK_TARGET_OS" = xmacosx || test "x$OPENJDK_TARGET_OS" = xios ; then
       # For full static builds, we're overloading the SHARED_LIBRARY
       # variables in order to limit the amount of changes required.
       # It would be better to remove SHARED and just use LIBRARY and
@@ -231,6 +231,34 @@ AC_DEFUN_ONCE([TOOLCHAIN_DETERMINE_TOOLCHAIN_TYPE],
 
   # First toolchain type in the list is the default
   DEFAULT_TOOLCHAIN=${VALID_TOOLCHAINS%% *}
+  if test "x$OPENJDK_TARGET_OS" = "xios" ; then
+    if test -n "$XCODEBUILD"; then
+      # On Mac OS X, default toolchain to clang after Xcode 5
+      XCODE_VERSION_OUTPUT=`"$XCODEBUILD" -version | $HEAD -n 1`
+      $ECHO "$XCODE_VERSION_OUTPUT" | $GREP "Xcode " > /dev/null
+      if test $? -ne 0; then
+        AC_MSG_NOTICE([xcodebuild output: $XCODE_VERSION_OUTPUT])
+        AC_MSG_ERROR([Failed to determine Xcode version.])
+      fi
+      XCODE_MAJOR_VERSION=`$ECHO $XCODE_VERSION_OUTPUT | \
+          $SED -e 's/^Xcode \(@<:@1-9@:>@@<:@0-9.@:>@*\)/\1/' | \
+          $CUT -f 1 -d .`
+      AC_MSG_NOTICE([Xcode major version: $XCODE_MAJOR_VERSION])
+      if test $XCODE_MAJOR_VERSION -ge 5; then
+          DEFAULT_TOOLCHAIN="clang"
+      else
+          DEFAULT_TOOLCHAIN="gcc"
+      fi
+    else
+      # If Xcode is not installed, but the command line tools are
+      # then we can't run xcodebuild. On these systems we should
+      # default to clang
+      DEFAULT_TOOLCHAIN="clang"
+    fi
+  else
+    # First toolchain type in the list is the default
+    DEFAULT_TOOLCHAIN=${VALID_TOOLCHAINS%% *}
+  fi
 
   if test "x$with_toolchain_type" = xlist; then
     # List all toolchains
@@ -882,11 +910,13 @@ AC_DEFUN_ONCE([TOOLCHAIN_SETUP_BUILD_COMPILERS],
 
     PATH="$OLDPATH"
 
-    TOOLCHAIN_EXTRACT_COMPILER_VERSION(BUILD_CC, [BuildC])
-    TOOLCHAIN_EXTRACT_COMPILER_VERSION(BUILD_CXX, [BuildC++])
-    TOOLCHAIN_PREPARE_FOR_VERSION_COMPARISONS([BUILD_], [OPENJDK_BUILD_], [build ])
-    TOOLCHAIN_EXTRACT_LD_VERSION(BUILD_LD, [build linker])
-    TOOLCHAIN_PREPARE_FOR_LD_VERSION_COMPARISONS([BUILD_], [OPENJDK_BUILD_])
+    if test "x$OPENJDK_TARGET_OS" != "xandroid"; then
+      TOOLCHAIN_EXTRACT_COMPILER_VERSION(BUILD_CC, [BuildC])
+      TOOLCHAIN_EXTRACT_COMPILER_VERSION(BUILD_CXX, [BuildC++])
+      TOOLCHAIN_PREPARE_FOR_VERSION_COMPARISONS([BUILD_], [OPENJDK_BUILD_], [build ])
+      TOOLCHAIN_EXTRACT_LD_VERSION(BUILD_LD, [build linker])
+      TOOLCHAIN_PREPARE_FOR_LD_VERSION_COMPARISONS([BUILD_], [OPENJDK_BUILD_])
+    fi
   else
     # If we are not cross compiling, use the normal target compilers for
     # building the build platform executables.
