@@ -30,40 +30,40 @@ include LibCommon.gmk
 ################################################################################
 
 # equivalent of strcasecmp is stricmp on Windows
-$(eval $(call SetupJdkLibrary, BUILD_LIBINSTRUMENT, \
-    NAME := instrument, \
-    OPTIMIZATION := LOW, \
-    CFLAGS_windows := -Dstrcasecmp=stricmp, \
-    CFLAGS_debug := -DJPLIS_LOGGING, \
-    CFLAGS_release := -DNO_JPLIS_LOGGING, \
-    EXTRA_HEADER_DIRS := java.base:libjli, \
-    LDFLAGS_linux := -L$(call FindLibDirForModule, java.base), \
-    LDFLAGS_macosx := -L$(call FindLibDirForModule, java.base), \
-    LDFLAGS_aix := -L$(SUPPORT_OUTPUTDIR)/native/java.base, \
-    JDK_LIBS := $(JDKLIB_LIBS), \
-    JDK_LIBS_linux := -ljli, \
-    JDK_LIBS_macosx := -ljli, \
-    JDK_LIBS_aix := -ljli_static, \
-    JDK_LIBS_windows := $(WIN_JAVA_LIB) \
-        $(SUPPORT_OUTPUTDIR)/native/java.base/libjli/jli.lib jvm.lib, \
-    LIBS_unix := $(LIBZ_LIBS), \
-    LIBS_linux := $(LIBDL), \
-    LIBS_aix := $(LIBDL) -liconv, \
-    LIBS_macosx := -liconv \
-        -framework ApplicationServices \
-        -framework Cocoa \
-        -framework Security, \
-    LIBS_windows := advapi32.lib, \
-))
-
-ifeq ($(call isTargetOs, aix), true)
-  $(BUILD_LIBINSTRUMENT): $(call FindStaticLib, java.base, jli_static)
-else
-  $(BUILD_LIBINSTRUMENT): $(call FindLib, java.base, jli)
-endif
-$(BUILD_LIBINSTRUMENT): $(call FindLib, java.base, java)
-
 ifeq ($(call isTargetOs, android ios), false)
+  $(eval $(call SetupJdkLibrary, BUILD_LIBINSTRUMENT, \
+      NAME := instrument, \
+      OPTIMIZATION := LOW, \
+      CFLAGS_windows := -Dstrcasecmp=stricmp, \
+      CFLAGS_debug := -DJPLIS_LOGGING, \
+      CFLAGS_release := -DNO_JPLIS_LOGGING, \
+      EXTRA_HEADER_DIRS := java.base:libjli, \
+      LDFLAGS_linux := -L$(call FindLibDirForModule, java.base), \
+      LDFLAGS_macosx := -L$(call FindLibDirForModule, java.base), \
+      LDFLAGS_aix := -L$(SUPPORT_OUTPUTDIR)/native/java.base, \
+      JDK_LIBS := $(JDKLIB_LIBS), \
+      JDK_LIBS_linux := -ljli, \
+      JDK_LIBS_macosx := -ljli, \
+      JDK_LIBS_aix := -ljli_static, \
+      JDK_LIBS_windows := $(WIN_JAVA_LIB) \
+          $(SUPPORT_OUTPUTDIR)/native/java.base/libjli/jli.lib jvm.lib, \
+      LIBS_unix := $(LIBZ_LIBS), \
+      LIBS_linux := $(LIBDL), \
+      LIBS_aix := $(LIBDL) -liconv, \
+      LIBS_macosx := -liconv \
+          -framework ApplicationServices \
+          -framework Cocoa \
+          -framework Security, \
+      LIBS_windows := advapi32.lib, \
+  ))
+  
+  ifeq ($(call isTargetOs, aix), true)
+    $(BUILD_LIBINSTRUMENT): $(call FindStaticLib, java.base, jli_static)
+  else
+    $(BUILD_LIBINSTRUMENT): $(call FindLib, java.base, jli)
+  endif
+  $(BUILD_LIBINSTRUMENT): $(call FindLib, java.base, java)
+
   TARGETS += $(BUILD_LIBINSTRUMENT)
 endif
 

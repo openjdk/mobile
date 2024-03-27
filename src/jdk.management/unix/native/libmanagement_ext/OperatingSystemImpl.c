@@ -318,7 +318,7 @@ Java_com_sun_management_internal_OperatingSystemImpl_getOpenFileDescriptorCount0
 
     return nfiles;
 #else
-    return (100);
+    return 100;
 #endif
 #elif defined(_ALLBSD_SOURCE)
     /*

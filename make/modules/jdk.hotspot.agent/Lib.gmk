@@ -53,31 +53,31 @@ else
   LIBSAPROC_LINK_TYPE := C
 endif
 
-$(eval $(call SetupJdkLibrary, BUILD_LIBSAPROC, \
-    NAME := saproc, \
-    LINK_TYPE := $(LIBSAPROC_LINK_TYPE), \
-    OPTIMIZATION := HIGH, \
-    DISABLED_WARNINGS_gcc := sign-compare, \
-    DISABLED_WARNINGS_gcc_ps_core.c := pointer-arith, \
-    DISABLED_WARNINGS_clang_ps_core.c := pointer-arith, \
-    DISABLED_WARNINGS_clang := sign-compare, \
-    DISABLED_WARNINGS_clang_libproc_impl.c := format-nonliteral, \
-    DISABLED_WARNINGS_clang_sadis.c := format-nonliteral, \
-    CFLAGS := $(LIBSAPROC_CFLAGS), \
-    CXXFLAGS := $(LIBSAPROC_CFLAGS) $(LIBSAPROC_CXXFLAGS), \
-    EXTRA_SRC := $(LIBSAPROC_EXTRA_SRC), \
-    JDK_LIBS_unix := -ljava, \
-    JDK_LIBS_windows := $(WIN_JAVA_LIB), \
-    LIBS_linux := $(LIBDL), \
-    LIBS_macosx := \
+ifeq ($(call isTargetOs, android ios), false)
+  $(eval $(call SetupJdkLibrary, BUILD_LIBSAPROC, \
+      NAME := saproc, \
+      LINK_TYPE := $(LIBSAPROC_LINK_TYPE), \
+      OPTIMIZATION := HIGH, \
+      DISABLED_WARNINGS_gcc := sign-compare, \
+      DISABLED_WARNINGS_gcc_ps_core.c := pointer-arith, \
+      DISABLED_WARNINGS_clang_ps_core.c := pointer-arith, \
+      DISABLED_WARNINGS_clang := sign-compare, \
+      DISABLED_WARNINGS_clang_libproc_impl.c := format-nonliteral, \
+      DISABLED_WARNINGS_clang_sadis.c := format-nonliteral, \
+      CFLAGS := $(LIBSAPROC_CFLAGS), \
+      CXXFLAGS := $(LIBSAPROC_CFLAGS) $(LIBSAPROC_CXXFLAGS), \
+      EXTRA_SRC := $(LIBSAPROC_EXTRA_SRC), \
+      JDK_LIBS_unix := -ljava, \
+      JDK_LIBS_windows := $(WIN_JAVA_LIB), \
+      LIBS_linux := $(LIBDL), \
+      LIBS_macosx := \
         -framework CoreFoundation \
         -framework Foundation \
         -framework JavaRuntimeSupport \
         -framework Security, \
-    LIBS_windows := dbgeng.lib, \
-))
+      LIBS_windows := dbgeng.lib, \
+  ))
 
-ifeq ($(call isTargetOs, android ios), false)
-  TARGETS += $(BUILD_LIBSA)
+  TARGETS += $(BUILD_LIBSAPROC)
 endif
 

@@ -50,27 +50,27 @@ TARGETS += $(BUILD_LIBDT_SOCKET)
 ################################################################################
 
 # JDWP_LOGGING causes log messages to be compiled into the library.
-$(eval $(call SetupJdkLibrary, BUILD_LIBJDWP, \
-    NAME := jdwp, \
-    OPTIMIZATION := LOW, \
-    CFLAGS := -DJDWP_LOGGING, \
-    DISABLED_WARNINGS_gcc_SDE.c := unused-function, \
-    DISABLED_WARNINGS_clang_error_messages.c := format-nonliteral, \
-    DISABLED_WARNINGS_clang_EventRequestImpl.c := self-assign, \
-    DISABLED_WARNINGS_clang_inStream.c := sometimes-uninitialized, \
-    DISABLED_WARNINGS_clang_log_messages.c := format-nonliteral, \
-    EXTRA_HEADER_DIRS := \
-        include \
-        libjdwp/export, \
-    JDK_LIBS := $(JDKLIB_LIBS), \
-    LIBS_linux := $(LIBDL), \
-    LIBS_macosx := -liconv, \
-    LIBS_aix := -liconv, \
-))
-
-$(BUILD_LIBJDWP): $(call FindLib, java.base, java)
-
 ifeq ($(call isTargetOs, android ios), false)
+  $(eval $(call SetupJdkLibrary, BUILD_LIBJDWP, \
+      NAME := jdwp, \
+      OPTIMIZATION := LOW, \
+      CFLAGS := -DJDWP_LOGGING, \
+      DISABLED_WARNINGS_gcc_SDE.c := unused-function, \
+      DISABLED_WARNINGS_clang_error_messages.c := format-nonliteral, \
+      DISABLED_WARNINGS_clang_EventRequestImpl.c := self-assign, \
+      DISABLED_WARNINGS_clang_inStream.c := sometimes-uninitialized, \
+      DISABLED_WARNINGS_clang_log_messages.c := format-nonliteral, \
+      EXTRA_HEADER_DIRS := \
+          include \
+          libjdwp/export, \
+      JDK_LIBS := $(JDKLIB_LIBS), \
+      LIBS_linux := $(LIBDL), \
+      LIBS_macosx := -liconv, \
+      LIBS_aix := -liconv, \
+  ))
+
+  $(BUILD_LIBJDWP): $(call FindLib, java.base, java)
+
   TARGETS += $(BUILD_LIBJDWP)
 endif
 
