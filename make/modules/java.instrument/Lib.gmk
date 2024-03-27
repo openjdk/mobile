@@ -56,7 +56,7 @@ ifeq ($(call isTargetOs, android ios), false)
           -framework Security, \
       LIBS_windows := advapi32.lib, \
   ))
-  
+
   ifeq ($(call isTargetOs, aix), true)
     $(BUILD_LIBINSTRUMENT): $(call FindStaticLib, java.base, jli_static)
   else
