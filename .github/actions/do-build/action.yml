@@ -39,12 +39,21 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: 'Build Android or iOS'
+      id: build-android-ios
+      run: |
+        cd build/${{ inputs.platform }}
+        make LOG=cmdlines static-libs-image
+      shell: bash
+      if: inputs.platform == 'android-linux-aarch64' || inputs.platform == 'ios-macos-aarch64'
+
     - name: 'Build'
       id: build
       run: >
         make LOG=info ${{ inputs.make-target }}
         || bash ./.github/scripts/gen-build-failure-report.sh "$GITHUB_STEP_SUMMARY"
       shell: bash
+      if: inputs.platform != 'android-linux-aarch64' && inputs.platform != 'ios-macos-aarch64'
 
     - name: 'Check for failure'
       id: check
