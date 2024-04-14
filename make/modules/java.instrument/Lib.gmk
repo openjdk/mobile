@@ -42,9 +42,7 @@ ifeq ($(call isTargetOs, android ios), false)
       LDFLAGS_macosx := -L$(call FindLibDirForModule, java.base), \
       LDFLAGS_aix := -L$(SUPPORT_OUTPUTDIR)/native/java.base, \
       JDK_LIBS := $(JDKLIB_LIBS), \
-      JDK_LIBS_linux := -ljli, \
-      JDK_LIBS_macosx := -ljli, \
-      JDK_LIBS_aix := -ljli_static, \
+      JDK_LIBS_unix := -ljli, \
       JDK_LIBS_windows := $(WIN_JAVA_LIB) \
           $(SUPPORT_OUTPUTDIR)/native/java.base/libjli/jli.lib jvm.lib, \
       LIBS_unix := $(LIBZ_LIBS), \
@@ -58,7 +56,7 @@ ifeq ($(call isTargetOs, android ios), false)
   ))
 
   ifeq ($(call isTargetOs, aix), true)
-    $(BUILD_LIBINSTRUMENT): $(call FindStaticLib, java.base, jli_static)
+    $(BUILD_LIBINSTRUMENT): $(call FindStaticLib, java.base, jli)
   else
     $(BUILD_LIBINSTRUMENT): $(call FindLib, java.base, jli)
   endif
