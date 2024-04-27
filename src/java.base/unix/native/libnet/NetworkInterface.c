@@ -25,7 +25,9 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <net/if.h>
+#ifndef TARGET_IOS
 #include <net/if_arp.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
