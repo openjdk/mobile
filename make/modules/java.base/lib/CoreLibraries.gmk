@@ -45,7 +45,7 @@ TARGETS += $(BUILD_LIBVERIFY)
 ## Build libjava
 ################################################################################
 
-ifeq ($(call isTargetOs, macosx ios), true)
+ifeq ($(call isTargetOs, macosx), true)
   BUILD_LIBJAVA_java_props_md.c_CFLAGS := -x objective-c
   BUILD_LIBJAVA_java_props_macosx.c_CFLAGS := -x objective-c
 endif
@@ -119,7 +119,7 @@ TARGETS += $(BUILD_LIBJIMAGE)
 ## Build libjli
 ################################################################################
 
-ifeq ($(call isTargetOs, macosx ios), true)
+ifeq ($(call isTargetOs, macosx), true)
   LIBJLI_EXCLUDE_FILES += java_md.c
 endif
 
@@ -167,7 +167,6 @@ $(eval $(call SetupJdkLibrary, BUILD_LIBJLI, \
     EXTRA_HEADER_DIRS := libjvm, \
     OPTIMIZATION := HIGH, \
     CFLAGS := $(LIBJLI_CFLAGS) $(LIBZ_CFLAGS), \
-    CFLAGS_ios := -I$(TOPDIR)/src/java.base/macosx/native/libjli, \
     DISABLED_WARNINGS_gcc := unused-function, \
     DISABLED_WARNINGS_clang := format-nonliteral deprecated-non-prototype, \
     LIBS_unix := $(LIBZ_LIBS), \
