@@ -41,6 +41,18 @@ FindSrcDirsForComponent += \
       $(TOPDIR)/src/$(strip $1)/$(OPENJDK_TARGET_OS_TYPE)/native/$(strip $2) \
       $(TOPDIR)/src/$(strip $1)/share/native/$(strip $2)))
 
+ifeq ($(OPENJDK_TARGET_OS), android)
+    FindSrcDirsForComponent += \
+        $(call uniq, $(wildcard \
+            $(TOPDIR)/src/$(strip $1)/linux/native/$(strip $2)))
+endif
+
+ifeq ($(OPENJDK_TARGET_OS), ios)
+    FindSrcDirsForComponent += \
+        $(call uniq, $(wildcard \
+            $(TOPDIR)/src/$(strip $1)/macosx/native/$(strip $2)))
+endif
+
 # Find a library. Used for declaring dependencies on libraries in different
 # modules.
 # Param 1 - module name

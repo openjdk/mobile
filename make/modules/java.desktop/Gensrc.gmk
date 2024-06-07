@@ -32,7 +32,7 @@ ifeq ($(call isTargetOs, windows), false)
   include gensrc/GensrcIcons.gmk
 endif
 
-ifeq ($(call isTargetOs, linux aix), true)
+ifeq ($(call isTargetOs, linux aix android), true)
   include gensrc/GensrcX11Wrappers.gmk
 endif
 
