@@ -35,10 +35,12 @@ $(call FillFindCache, $(wildcard $(TOPDIR)/src/java.desktop/*/native))
 ################################################################################
 # Create the AWT/2D libraries
 
-include lib/AwtLibraries.gmk
-include lib/ClientLibraries.gmk
+ifeq ($(call isTargetOs, android ios), false)
+  include lib/AwtLibraries.gmk
+  include lib/ClientLibraries.gmk
+endif
 
-ifeq ($(call isTargetOs, aix), false)
+ifeq ($(call isTargetOs, aix android ios), false)
   ##############################################################################
   # Build libjsound
   ##############################################################################

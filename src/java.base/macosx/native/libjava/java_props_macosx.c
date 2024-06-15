@@ -23,6 +23,7 @@
  * questions.
  */
 
+#ifndef __IOS__
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -31,6 +32,16 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <SystemConfiguration/SystemConfiguration.h>
 #include <Foundation/Foundation.h>
+#else
+#include <stdlib.h>
+#include <string.h>
+#include <sys/param.h>
+#include <objc/runtime.h>
+#include <objc/objc.h>
+#include <objc/message.h>
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreFoundation/CFlocale.h>
+#endif
 
 #include "java_props_macosx.h"
 
@@ -222,6 +233,7 @@ char *setupMacOSXLocale(int cat) {
     }
 }
 
+#ifndef __IOS__
 // 10.9 SDK does not include the NSOperatingSystemVersion struct.
 // For now, create our own
 typedef struct {
@@ -492,3 +504,4 @@ void setProxyProperties(java_props_t *sProps) {
 
     CFRelease(dict);
 }
+#endif

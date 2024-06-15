@@ -160,7 +160,7 @@ typedef struct sigaction *(*get_signal_t)(int);
 static get_signal_t get_signal_action = nullptr;
 
 // suspend/resume support
-#if defined(__APPLE__)
+#if defined(__APPLE__) && !defined(__IOS__)
   static OSXSemaphore sr_semaphore;
 #else
   static PosixSemaphore sr_semaphore;
