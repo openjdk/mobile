@@ -30,7 +30,7 @@ include LibCommon.gmk
 ################################################################################
 
 # libprefs on macosx does not use the unix code
-ifeq ($(call isTargetOs, macosx), true)
+ifeq ($(call isTargetOs, macosx ios), true)
   LIBPREFS_EXCLUDE_SRC_PATTERNS := /unix/
 endif
 
