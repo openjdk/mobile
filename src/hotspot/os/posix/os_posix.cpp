@@ -1324,7 +1324,7 @@ static bool _use_clock_monotonic_condattr = false;
 // Determine what POSIX API's are present and do appropriate
 // configuration.
 void os::Posix::init(void) {
-#if defined(_ALLBSD_SOURCE)
+#if defined(_ALLBSD_SOURCE) && !defined(ANDROID)
   clock_tics_per_sec = CLK_TCK;
 #else
   clock_tics_per_sec = checked_cast<int>(sysconf(_SC_CLK_TCK));
