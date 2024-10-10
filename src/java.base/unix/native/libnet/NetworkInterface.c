@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -376,7 +376,7 @@ JNIEXPORT jboolean JNICALL Java_java_net_NetworkInterface_boundInetAddress0
 
     if (family == AF_INET) {
         sock = openSocket(env, AF_INET);
-        if (sock < 0 && (*env)->ExceptionOccurred(env)) {
+        if (sock < 0 && (*env)->ExceptionCheck(env)) {
             return JNI_FALSE;
         }
 
@@ -385,7 +385,7 @@ JNIEXPORT jboolean JNICALL Java_java_net_NetworkInterface_boundInetAddress0
             ifs = enumIPv4Interfaces(env, sock, ifs);
             close(sock);
 
-            if ((*env)->ExceptionOccurred(env)) {
+            if ((*env)->ExceptionCheck(env)) {
                 goto cleanup;
             }
         }
@@ -403,7 +403,7 @@ JNIEXPORT jboolean JNICALL Java_java_net_NetworkInterface_boundInetAddress0
         ifs = enumIPv6Interfaces(env, sock, ifs);
         close(sock);
 
-        if ((*env)->ExceptionOccurred(env)) {
+        if ((*env)->ExceptionCheck(env)) {
             goto cleanup;
         }
 
@@ -858,7 +858,7 @@ static netif *enumInterfaces(JNIEnv *env) {
     int sock;
 
     sock = openSocket(env, AF_INET);
-    if (sock < 0 && (*env)->ExceptionOccurred(env)) {
+    if (sock < 0 && (*env)->ExceptionCheck(env)) {
         return NULL;
     }
 
@@ -867,7 +867,7 @@ static netif *enumInterfaces(JNIEnv *env) {
         ifs = enumIPv4Interfaces(env, sock, ifs);
         close(sock);
 
-        if ((*env)->ExceptionOccurred(env)) {
+        if ((*env)->ExceptionCheck(env)) {
             freeif(ifs);
             return NULL;
         }
@@ -886,7 +886,7 @@ static netif *enumInterfaces(JNIEnv *env) {
         ifs = enumIPv6Interfaces(env, sock, ifs);
         close(sock);
 
-        if ((*env)->ExceptionOccurred(env)) {
+        if ((*env)->ExceptionCheck(env)) {
             freeif(ifs);
             return NULL;
         }
@@ -1239,7 +1239,7 @@ static netif *enumIPv4Interfaces(JNIEnv *env, int sock, netif *ifs) {
                     &addr, broadaddrP, AF_INET, prefix);
 
         // in case of exception, free interface list and buffer and return NULL
-        if ((*env)->ExceptionOccurred(env)) {
+        if ((*env)->ExceptionCheck(env)) {
             free(buf);
             freeif(ifs);
             return NULL;
@@ -1283,7 +1283,7 @@ static netif *enumIPv6Interfaces(JNIEnv *env, int sock, netif *ifs) {
                         NULL, AF_INET6, (short)prefix);
 
             // if an exception occurred then return the list as is
-            if ((*env)->ExceptionOccurred(env)) {
+            if ((*env)->ExceptionCheck(env)) {
                 break;
             }
        }
@@ -1480,7 +1480,7 @@ static netif *enumIPv4Interfaces(JNIEnv *env, int sock, netif *ifs) {
                     &addr, broadaddrP, AF_INET, prefix);
 
         // in case of exception, free interface list and buffer and return NULL
-        if ((*env)->ExceptionOccurred(env)) {
+        if ((*env)->ExceptionCheck(env)) {
             free(buf);
             freeif(ifs);
             return NULL;
@@ -1554,7 +1554,7 @@ static netif *enumIPv6Interfaces(JNIEnv *env, int sock, netif *ifs) {
                     NULL, AF_INET6, prefix);
 
         // if an exception occurred then free the list
-        if ((*env)->ExceptionOccurred(env)) {
+        if ((*env)->ExceptionCheck(env)) {
             free(buf);
             freeif(ifs);
             return NULL;
@@ -1719,7 +1719,7 @@ static netif *enumIPv4Interfaces(JNIEnv *env, int sock, netif *ifs) {
                                                  ifa->ifa_netmask));
 
         // if an exception occurred then free the list
-        if ((*env)->ExceptionOccurred(env)) {
+        if ((*env)->ExceptionCheck(env)) {
             freeifaddrs(origifa);
             freeif(ifs);
             return NULL;
@@ -1759,7 +1759,7 @@ static netif *enumIPv6Interfaces(JNIEnv *env, int sock, netif *ifs) {
                                                  ifa->ifa_netmask));
 
         // if an exception occurred then free the list
-        if ((*env)->ExceptionOccurred(env)) {
+        if ((*env)->ExceptionCheck(env)) {
             freeifaddrs(origifa);
             freeif(ifs);
             return NULL;
