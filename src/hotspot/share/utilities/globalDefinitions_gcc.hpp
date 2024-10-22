@@ -64,7 +64,11 @@
 #if !defined(__OpenBSD__) && !defined(__IOS__)
 #include <ucontext.h>
 #endif
-#ifdef __APPLE__
+#ifdef __IOS__ 
+  #include <AvailabilityMacros.h>
+  #include <mach/mach.h>
+#endif
+#ifdef __APPLE__ 
   #include <AvailabilityMacros.h>
   #include <mach/mach.h>
 #endif

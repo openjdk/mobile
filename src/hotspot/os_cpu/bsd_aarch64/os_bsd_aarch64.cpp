@@ -504,7 +504,11 @@ int os::extra_bang_size_in_bytes() {
 }
 
 void os::current_thread_enable_wx(WXMode mode) {
+#ifndef __IOS__
   pthread_jit_write_protect_np(mode == WXExec);
+#else
+  fprintf(stderr, "no support for pthread_jit_write_protect_np on iOS\n");
+#endif
 }
 
 static inline void atomic_copy64(const volatile void *src, volatile void *dst) {

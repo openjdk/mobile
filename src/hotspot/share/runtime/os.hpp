@@ -759,6 +759,9 @@ class os: AllStatic {
   // Unload library
   static void  dll_unload(void *lib);
 
+// Lookup the named function. This is used by the static JDK.
+  static void* lookup_function(const char* name);
+
   // Callback for loaded module information
   // Input parameters:
   //    char*     module_file_name,
@@ -1014,8 +1017,6 @@ class os: AllStatic {
   // like ::LinuxUtils
 #if defined(AIX)
   class Aix;
-#elif defined(__IOS__)
-  class Linux;
 #elif defined(BSD)
   class Bsd;
 #elif defined(LINUX)

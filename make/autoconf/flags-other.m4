@@ -136,6 +136,9 @@ AC_DEFUN([FLAGS_SETUP_ASFLAGS],
   if test "x$OPENJDK_TARGET_OS" = xandroid; then
     JVM_BASIC_ASFLAGS="-target aarch64-linux-android"
   fi
+  if test "x$OPENJDK_TARGET_OS" = xios; then
+    JVM_BASIC_ASFLAGS="--sysroot=[$]$1SYSROOT -target arm64-apple-ios"
+  fi
 ])
 
 ################################################################################

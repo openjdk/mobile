@@ -1793,9 +1793,12 @@ bool os::remove_stack_guard_pages(char* addr, size_t size) {
 // function returns null to indicate failure.
 static char* anon_mmap(char* requested_addr, size_t bytes, bool exec) {
   // MAP_FIXED is intentionally left out, to leave existing mappings intact.
+#ifndef __IOS__
   const int flags = MAP_PRIVATE | MAP_NORESERVE | MAP_ANONYMOUS
       MACOS_ONLY(| (exec ? MAP_JIT : 0));
-
+#else
+  const int flags = MAP_PRIVATE | MAP_NORESERVE | MAP_ANONYMOUS;
+#endif
   // Map reserved/uncommitted pages PROT_NONE so we fail early if we
   // touch an uncommitted page. Otherwise, the read/write might
   // succeed if we have enough swap space to back the physical page.

@@ -161,12 +161,17 @@ ifeq ($(call isTargetOs, linux), true)
   JVM_LDFLAGS += -Wl,-version-script=$(HOTSPOT_VERSION_SCRIPT)
 endif
 
+ifeq ($(call isTargetOs, ios), true)
+    LIB_TYPE := STATIC_LIBRARY
+endif
+
 ################################################################################
 ## Build libjvm
 ################################################################################
 
 $(eval $(call SetupJdkLibrary, BUILD_LIBJVM, \
     NAME := jvm, \
+    TYPE := $(LIB_TYPE), \
     LINK_TYPE := C++, \
     OUTPUT_DIR := $(JVM_LIB_OUTPUTDIR), \
     SRC := $(JVM_SRC_DIRS), \
