@@ -27,6 +27,13 @@
 #ifndef OS_CPU_BSD_AARCH64_ICACHE_AARCH64_HPP
 #define OS_CPU_BSD_AARCH64_ICACHE_AARCH64_HPP
 
+#ifdef __IOS__
+void ___clear_cache(void* start, void* end) {
+    fprintf(stderr, "no _clear_cache on ios\n");
+}
+#endif
+
+
 // Interface for updating the instruction cache.  Whenever the VM
 // modifies code, part of the processor instruction cache potentially
 // has to be flushed.

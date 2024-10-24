@@ -25,7 +25,7 @@
 #ifndef SHARE_UTILITIES_ELFFILE_HPP
 #define SHARE_UTILITIES_ELFFILE_HPP
 
-#if !defined(_WINDOWS) && (!defined(__APPLE__) || defined(__IOS__)) && !defined(_AIX)
+#if !defined(_WINDOWS) && !defined(__APPLE__) && !defined(_AIX)
 
 #if defined(__OpenBSD__)
 #include <sys/exec_elf.h>
