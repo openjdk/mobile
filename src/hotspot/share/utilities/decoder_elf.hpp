@@ -25,7 +25,7 @@
 #ifndef SHARE_UTILITIES_DECODER_ELF_HPP
 #define SHARE_UTILITIES_DECODER_ELF_HPP
 
-#if !defined(_WINDOWS) && !defined(__APPLE__)
+#if !defined(_WINDOWS) && (!defined(__APPLE__) || defined(__IOS__))
 
 #include "utilities/decoder.hpp"
 #include "utilities/elfFile.hpp"

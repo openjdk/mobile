@@ -39,10 +39,12 @@
 
 #include "manifest_info.h"
 
+#ifndef __IOS__
 /* Support Cocoa event loop on the main thread */
 #include <Cocoa/Cocoa.h>
 #include <objc/objc-runtime.h>
 #include <objc/objc-auto.h>
+#endif
 
 #include <errno.h>
 #include <spawn.h>
@@ -237,7 +239,11 @@ JLI_SetPreferredJVM(const char *prefJVM) {
     sPreferredJVMType = strdup(prefJVM);
 }
 
+#ifdef __IOS__
+static jboolean awtLoaded = 0;
+#else
 static BOOL awtLoaded = NO;
+#endif
 static pthread_mutex_t awtLoaded_mutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t  awtLoaded_cv = PTHREAD_COND_INITIALIZER;
 
@@ -245,7 +251,11 @@ JNIEXPORT void JNICALL
 JLI_NotifyAWTLoaded()
 {
     pthread_mutex_lock(&awtLoaded_mutex);
+#ifdef __IOS__
+    awtLoaded = 1;
+#else
     awtLoaded = YES;
+#endif
     pthread_cond_signal(&awtLoaded_cv);
     pthread_mutex_unlock(&awtLoaded_mutex);
 }
@@ -274,6 +284,7 @@ static void *apple_main (void *arg)
     exit(main_fptr(args->argc, args->argv));
 }
 
+#ifndef __IOS__
 static void dummyTimer(CFRunLoopTimerRef timer, void *info) {}
 
 static void ParkEventLoop() {
@@ -288,6 +299,7 @@ static void ParkEventLoop() {
         result = CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0e20, false);
     } while (result != kCFRunLoopRunFinished);
 }
+#endif
 
 /*
  * Mac OS X mandates that the GUI event loop run on very first thread of
@@ -321,7 +333,9 @@ static void MacOSXStartup(int argc, char *argv[]) {
         exit(1);
     }
 
+#ifndef __IOS__
     ParkEventLoop();
+#endif
 }
 
 void
@@ -904,6 +918,7 @@ int
 JVMInit(InvocationFunctions* ifn, jlong threadStackSize,
                  int argc, char **argv,
                  int mode, char *what, int ret) {
+#ifndef __IOS__
     if (sameThread) {
         JLI_TraceLauncher("In same thread\n");
         // need to block this thread against the main thread
@@ -934,6 +949,9 @@ JVMInit(InvocationFunctions* ifn, jlong threadStackSize,
     } else {
         return ContinueInNewThread(ifn, threadStackSize, argc, argv, mode, what, ret);
     }
+#else
+  return ContinueInNewThread(ifn, threadStackSize, argc, argv, mode, what, ret);
+#endif
 }
 
 /*

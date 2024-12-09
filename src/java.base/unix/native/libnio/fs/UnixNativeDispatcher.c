@@ -670,7 +670,7 @@ static void copy_stat_attributes(JNIEnv* env, struct stat* buf, jobject attrs) {
     // rely on default value of 0 for st_birthtime_nsec field on Darwin
 #endif
 
-#ifndef MACOSX
+#if !defined(MACOSX) && !defined(__IOS__)
     (*env)->SetLongField(env, attrs, attrs_st_atime_nsec, (jlong)buf->st_atim.tv_nsec);
     (*env)->SetLongField(env, attrs, attrs_st_mtime_nsec, (jlong)buf->st_mtim.tv_nsec);
     (*env)->SetLongField(env, attrs, attrs_st_ctime_nsec, (jlong)buf->st_ctim.tv_nsec);

@@ -57,7 +57,7 @@ static const char *DEFAULT_ZONEINFO_FILE = "/usr/share/lib/zoneinfo/localtime";
 
 static const char popularZones[][4] = {"UTC", "GMT"};
 
-#if defined(__linux__) || defined(MACOSX)
+#if defined(__linux__) || defined(MACOSX) || defined(__IOS__)
 static char *isFileIdentical(char* buf, size_t size, char *pathname);
 
 /*

@@ -198,6 +198,14 @@ AC_DEFUN([PLATFORM_EXTRACT_VARS_FROM_CPU],
 AC_DEFUN([PLATFORM_EXTRACT_VARS_FROM_OS],
 [
   case "$1" in
+    *android*)
+      VAR_OS=android
+      VAR_OS_TYPE=unix
+      ;;
+    *ios*)
+      VAR_OS=ios
+      VAR_OS_TYPE=unix
+      ;;
     *linux*)
       VAR_OS=linux
       VAR_OS_TYPE=unix
