@@ -822,7 +822,7 @@ public:
   virtual void execute(DCmdSource source, TRAPS);
 };
 
-#if defined(LINUX) || defined(_WIN64) || defined(__APPLE__)
+#if defined(LINUX) || defined(_WIN64) || (defined(__APPLE__) && !defined(__IOS__))
 
 class SystemMapDCmd : public DCmd {
 public:

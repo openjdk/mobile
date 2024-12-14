@@ -1481,7 +1481,11 @@ bool os::set_boot_path(char fileSep, char pathSep) {
   struct stat st;
 
   // modular image if "modules" jimage exists
+#ifndef __IOS__
   char* jimage = format_boot_path("%/lib/" MODULES_IMAGE_NAME, home, home_len, fileSep, pathSep);
+#else
+  char* jimage = format_boot_path("%/Documents/lib/" MODULES_IMAGE_NAME, home, home_len, fileSep, pathSep);
+#endif
   if (jimage == nullptr) return false;
   bool has_jimage = (os::stat(jimage, &st) == 0);
   if (has_jimage) {

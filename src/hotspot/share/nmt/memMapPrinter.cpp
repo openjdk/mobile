@@ -25,7 +25,7 @@
 
 #include "precompiled.hpp"
 
-#if defined(LINUX) || defined(_WIN64) || defined(__APPLE__)
+#if defined(LINUX) || defined(_WIN64) || (defined(__APPLE__) && !defined(__IOS__))
 
 #include "gc/shared/collectedHeap.hpp"
 #include "logging/logAsyncWriter.hpp"
