@@ -317,7 +317,9 @@ int os::extra_bang_size_in_bytes() {
 
 #if defined(AARCH64) && defined(__APPLE__)
 void os::current_thread_enable_wx(WXMode mode) {
+#ifndef __IOS__
   pthread_jit_write_protect_np(mode == WXExec);
+#endif
 }
 #endif
 

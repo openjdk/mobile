@@ -184,6 +184,9 @@ static ps_prochandle_ops core_ops = {
 
 // read regs and create thread from NT_PRSTATUS entries from core file
 static bool core_handle_prstatus(struct ps_prochandle* ph, const char* buf, size_t nbytes) {
+#ifdef ANDROID
+    return false;
+#else
    // we have to read prstatus_t from buf
    // assert(nbytes == sizeof(prstaus_t), "size mismatch on prstatus_t");
    prstatus_t* prstat = (prstatus_t*) buf;
@@ -243,6 +246,7 @@ static bool core_handle_prstatus(struct ps_prochandle* ph, const char* buf, size
    }
 
    return true;
+#endif // ANDROID
 }
 
 #define ROUNDUP(x, y)  ((((x)+((y)-1))/(y))*(y))

@@ -53,7 +53,7 @@ EXCLUDE_FILES += \
     .template \
     #
 
-ifeq ($(call isTargetOs, macosx), true)
+ifeq ($(call isTargetOs, macosx android ios), true)
   # exclude all X11 on Mac.
   EXCLUDES += \
       sun/awt/screencast \

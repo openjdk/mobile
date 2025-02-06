@@ -23,7 +23,7 @@
  *
  */
 
-#if defined(__APPLE__)
+#if (defined(__APPLE__) && !defined(__IOS__))
 
 #include "nmt/memMapPrinter.hpp"
 #include "runtime/os.hpp"

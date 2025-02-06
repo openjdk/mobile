@@ -30,7 +30,7 @@
 #include "nmt/memTag.hpp"
 #include "utilities/globalDefinitions.hpp"
 
-#if defined(LINUX) || defined(_WIN64) || defined(__APPLE__)
+#if defined(LINUX) || defined(_WIN64) || (defined(__APPLE__) && !defined(__IOS__))
 
 class outputStream;
 class CachedNMTInformation;

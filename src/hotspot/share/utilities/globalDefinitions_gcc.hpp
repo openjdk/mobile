@@ -61,7 +61,7 @@
 
 #if defined(LINUX) || defined(_ALLBSD_SOURCE) || defined(_AIX)
 #include <signal.h>
-#ifndef __OpenBSD__
+#if !defined(__OpenBSD__) && !defined(__IOS__)
 #include <ucontext.h>
 #endif
 #ifdef __APPLE__

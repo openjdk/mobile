@@ -466,16 +466,19 @@ void os::init_system_properties_values() {
     // Found the full path to libjvm.so.
     // Now cut the path to <java_home>/jre if we can.
     *(strrchr(buf, '/')) = '\0'; // Get rid of /libjvm.so.
+#ifndef __IOS__
     pslash = strrchr(buf, '/');
     if (pslash != nullptr) {
       *pslash = '\0';            // Get rid of /{client|server|hotspot}.
     }
+#endif
     if (is_vm_statically_linked()) {
       strcat(buf, "/lib");
     }
 
     Arguments::set_dll_dir(buf);
 
+#ifndef __IOS__
     if (pslash != nullptr) {
       pslash = strrchr(buf, '/');
       if (pslash != nullptr) {
@@ -483,6 +486,12 @@ void os::init_system_properties_values() {
       }
     }
     Arguments::set_java_home(buf);
+#else
+    size_t nlen = strlen(user_home_dir) + 11;
+    char *iosuser_home = NEW_C_HEAP_ARRAY(char, nlen, mtInternal);
+    snprintf(iosuser_home, nlen, "%s/Documents", user_home_dir);
+    Arguments::set_java_home(iosuser_home);
+#endif
     if (!set_boot_path('/', ':')) {
         vm_exit_during_initialization("Failed setting boot class path.", nullptr);
     }
@@ -1499,6 +1508,11 @@ void os::jvm_path(char *buf, jint buflen) {
                                          CAST_FROM_FN_PTR(address, os::jvm_path),
                                          dli_fname, sizeof(dli_fname), nullptr);
   assert(ret, "cannot locate libjvm");
+#ifdef __IOS__
+    const char *homeDir = getenv("HOME");
+    snprintf(buf, buflen, "%s/Documents/", homeDir);
+    return;
+#endif
   char *rp = nullptr;
   if (ret && dli_fname[0] != '\0') {
     rp = os::realpath(dli_fname, buf, buflen);
@@ -1789,7 +1803,11 @@ bool os::remove_stack_guard_pages(char* addr, size_t size) {
 static char* anon_mmap(char* requested_addr, size_t bytes, bool exec) {
   // MAP_FIXED is intentionally left out, to leave existing mappings intact.
   const int flags = MAP_PRIVATE | MAP_NORESERVE | MAP_ANONYMOUS
+#ifdef __IOS__
+      ;
+#else
       MACOS_ONLY(| (exec ? MAP_JIT : 0));
+#endif
 
   // Map reserved/uncommitted pages PROT_NONE so we fail early if we
   // touch an uncommitted page. Otherwise, the read/write might

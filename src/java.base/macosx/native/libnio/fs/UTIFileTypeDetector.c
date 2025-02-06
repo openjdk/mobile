@@ -106,6 +106,7 @@ Java_sun_nio_fs_UTIFileTypeDetector_probe0(JNIEnv* env, jobject ftd,
 
     CFStringRef extension = toCFString(env, ext);
     if (extension != NULL) {
+#ifndef __IOS__ // deprecated on ios
         CFStringRef uti =
             UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension,
                                                   extension, NULL);
@@ -121,6 +122,7 @@ Java_sun_nio_fs_UTIFileTypeDetector_probe0(JNIEnv* env, jobject ftd,
                 CFRelease(mimeType);
             }
         }
+#endif
     }
 
     return result;

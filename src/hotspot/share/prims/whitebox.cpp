@@ -2467,12 +2467,14 @@ WB_END
 WB_ENTRY(jboolean, WB_CheckLibSpecifiesNoexecstack(JNIEnv* env, jobject o, jstring libfile))
   jboolean ret = false;
 #ifdef LINUX
+#ifndef __IOS__
   // Can't be in VM when we call JNI.
   ThreadToNativeFromVM ttnfv(thread);
   const char* lf = env->GetStringUTFChars(libfile, nullptr);
   CHECK_JNI_EXCEPTION_(env, 0);
   ret = (jboolean) ElfFile::specifies_noexecstack(lf);
   env->ReleaseStringUTFChars(libfile, lf);
+#endif // IOS
 #endif
   return ret;
 WB_END
