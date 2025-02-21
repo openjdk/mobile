@@ -1,8 +1,8 @@
 # Building the JDK targeting iOS
 
 > [!NOTE]
-> Follow the instructions in [building.md](building.md) to make sure you can build the JDK
-> targeting a desktop platform before trying to build for iOS
+> Follow the instructions in [building.md](building.md) to make sure
+> you can build the JDK targeting macOS before trying to build for iOS
 
 ## Build static image for iOS
 
