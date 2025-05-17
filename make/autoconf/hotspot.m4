@@ -54,7 +54,11 @@ AC_DEFUN_ONCE([HOTSPOT_SETUP_JVM_VARIANTS],
       zero custom) @<:@server@:>@])])
 
   if test "x$with_jvm_variants" = x; then
-    with_jvm_variants="server"
+    if test "x$OPENJDK_TARGET_OS" = xios; then
+      with_jvm_variants="zero"
+    else
+      with_jvm_variants="server"
+    fi
   fi
   JVM_VARIANTS_OPT="$with_jvm_variants"
 
@@ -73,6 +77,10 @@ AC_DEFUN_ONCE([HOTSPOT_SETUP_JVM_VARIANTS],
   # Also use minimal, not minimal1 (which is kept for backwards compatibility).
   JVM_VARIANTS=`$ECHO $JVM_VARIANTS_OPT | $SED -e 's/,/ /g' -e 's/minimal1/minimal/'`
   AC_MSG_RESULT([$JVM_VARIANTS])
+
+  if test "x$OPENJDK_TARGET_OS" = xios; then
+    VALID_JVM_VARIANTS="zero"
+  fi
 
   # Check that the selected variants are valid
   UTIL_GET_NON_MATCHING_VALUES(INVALID_VARIANTS, $JVM_VARIANTS, \
