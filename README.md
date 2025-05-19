@@ -19,7 +19,7 @@ tracking.
 
 ### Pre-requisites
 Following are the prerequisites to build JDK on Mac targeting iOS:
-1. Download and install JDK24 for macOS. You can use the JDK you just built targeting macOS in the above note instead, but this is not recommended.
+1. Download and install JDK24 for macOS. You can use the JDK you just built targeting macOS in the above note instead.
 2. Download the [support zip](https://download2.gluonhq.com/mobile/mobile-support-20250106.zip) which contains an ios build for libffi and cups. Unzip it in an easy to use location.
 3. Install `autoconf` on mac via homebrew: `brew install autoconf`
 
@@ -38,19 +38,21 @@ directory, and the correct location of the iPhoneOS.platform.
 sh configure \
 --disable-warnings-as-errors \
 --openjdk-target=aarch64-macos-ios \
---with-libffi-include=<support-dir-absolute-path>/libffi/include \
---with-libffi-lib=<support-dir-absolute-path>/libffi/libs \
---with-cups-include=<support-dir-absolute-path>/cups-2.3.6
+--with-libffi-include=<support-dir-path>/libffi/include \
+--with-libffi-lib=<support-dir-path>/libffi/libs \
+--with-cups-include=<support-dir-path>/cups-2.3.6
 --with-sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk \
 ```
 
-If you need to tell configure the path of the boot JDK, or if configure fails with an error saying
-it can't find the boot JDK, for instance if you downloaded a JDK in compressed archive form rather
-than with an installer, you can pass the following option to configure:
+If you need to tell configure the path of your boot JDK, or if configure fails with an error saying
+it can't find a boot JDK, for instance if you downloaded a JDK in compressed archive form rather
+than with an installer, you can pass `--with-boot-jdk=<java-directory-path>` to configure:
 
-```
---with-boot-jdk=<java-directory-absolute-path>
-```
+For iOS the default JVM used is Zero, since iOS has no writeable and executable sections. However, if
+you plan to run the JDK on the simulator for testing purposes, you can use the other JVM variants such
+as Server. To do this, pass `--with-jvm-variants=server` to configure (Or any other valid option, which
+are, in no particular order: server, client, minimal, core, zero, custom). Do note that passing zero to
+this option is redundant since Zero is already the default for iOS.
 
 ### Build static image
 Execute the `make` command:
