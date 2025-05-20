@@ -46,7 +46,7 @@ sh configure \
 
 If you need to tell configure the path of your boot JDK, or if configure fails with an error saying
 it can't find a boot JDK, for instance if you downloaded a JDK in compressed archive form rather
-than with an installer, you can pass `--with-boot-jdk=<java-directory-path>` to configure:
+than with an installer, you can pass `--with-boot-jdk=<java-directory-path>` to configure.
 
 For iOS the default JVM used is Zero, since iOS has no writeable and executable sections. However, if
 you plan to run the JDK on the simulator for testing purposes, you can use the other JVM variants such
