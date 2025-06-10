@@ -133,6 +133,9 @@ AC_DEFUN([FLAGS_SETUP_ASFLAGS],
             -DMAC_OS_X_VERSION_MAX_ALLOWED=$MACOSX_VERSION_MAX_NODOTS"
     fi
   fi
+  if test "x$OPENJDK_TARGET_OS" = xandroid; then
+    JVM_BASIC_ASFLAGS="-target aarch64-linux-android"
+  fi
 ])
 
 ################################################################################
