@@ -14,7 +14,7 @@ tracking.
 ## Build static image for iOS
 
 > [!NOTE]
-> Follow the instructions in [building.md](building.md) to make sure
+> Follow the instructions in [building.md](doc/building.md) to make sure
 > you can build the JDK targeting macOS before trying to build for iOS
 
 ### Pre-requisites
