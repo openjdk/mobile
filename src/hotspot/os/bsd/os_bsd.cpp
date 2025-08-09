@@ -473,13 +473,8 @@ void os::init_system_properties_values() {
         *pslash = '\0';          // Get rid of /lib.
       }
     }
-    Arguments::set_java_home(buf);
-#else
-    size_t nlen = strlen(user_home_dir) + 11;
-    char *iosuser_home = NEW_C_HEAP_ARRAY(char, nlen, mtInternal);
-    snprintf(iosuser_home, nlen, "%s/Documents", user_home_dir);
-    Arguments::set_java_home(iosuser_home);
 #endif
+    Arguments::set_java_home(buf);
     if (!set_boot_path('/', ':')) {
         vm_exit_during_initialization("Failed setting boot class path.", nullptr);
     }
