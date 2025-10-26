@@ -1009,6 +1009,7 @@ int64_t NetworkPerformanceInterface::NetworkPerformance::read_counter(const char
 
 int NetworkPerformanceInterface::NetworkPerformance::network_utilization(NetworkInterface** network_interfaces) const
 {
+#ifndef __BIONIC__
   ifaddrs* addresses;
   ifaddrs* cur_address;
 
@@ -1033,6 +1034,9 @@ int NetworkPerformanceInterface::NetworkPerformance::network_utilization(Network
   *network_interfaces = ret;
 
   return OS_OK;
+#else
+  return -1;
+#endif
 }
 
 NetworkPerformanceInterface::NetworkPerformanceInterface() {

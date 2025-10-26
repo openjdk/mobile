@@ -288,7 +288,11 @@ static int ParseLocale(JNIEnv* env, int cat, char ** std_language, char ** std_s
         if (strcmp(p, "ISO8859-15") == 0)
             p = "ISO8859-15";
         else
+#ifndef __BIONIC__
             p = nl_langinfo(CODESET);
+#else
+            p = "UTF-8";
+#endif
 
         /* Convert the bare "646" used on Solaris to a proper IANA name */
         if (strcmp(p, "646") == 0)
