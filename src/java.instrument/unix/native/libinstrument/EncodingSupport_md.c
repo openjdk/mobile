@@ -58,6 +58,7 @@ utfError(char *file, int line, char *message)
 static void
 utfInitialize(void)
 {
+#ifndef __BIONIC__
     const char* codeset;
 
 #ifndef MACOSX
@@ -92,6 +93,7 @@ utfInitialize(void)
     if ( iconvFromPlatform == (iconv_t)-1 ) {
         UTF_ERROR("Failed to complete iconv_open() setup");
     }
+#endif
 }
 
 /*
@@ -101,6 +103,7 @@ utfInitialize(void)
 static int
 iconvConvert(iconv_t ic, char *bytes, int len, char *output, int outputMaxLen)
 {
+#ifndef __BIONIC__
     int outputLen = 0;
 
     UTF_ASSERT(bytes);
@@ -139,6 +142,7 @@ iconvConvert(iconv_t ic, char *bytes, int len, char *output, int outputMaxLen)
     (void)memcpy(output, bytes, len);
     output[len] = 0;
     return outputLen;
+#endif
 }
 
 /*

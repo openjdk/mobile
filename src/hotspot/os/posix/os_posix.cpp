@@ -2101,6 +2101,7 @@ char** os::get_environ() { return environ; }
 //        -this function is unsafe to use in non-error situations, mainly
 //         because the child process will inherit all parent descriptors.
 int os::fork_and_exec(const char* cmd) {
+#ifndef __BIONIC__
   const char* argv[4] = {"sh", "-c", cmd, nullptr};
   pid_t pid = -1;
   char** env = os::get_environ();
@@ -2137,6 +2138,9 @@ int os::fork_and_exec(const char* cmd) {
     // Don't log, we are inside error handling
     return -1;
   }
+#else
+  return -1;
+#endif
 }
 
 bool os::message_box(const char* title, const char* message) {
