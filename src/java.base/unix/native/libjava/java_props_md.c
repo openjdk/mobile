@@ -529,6 +529,10 @@ GetJavaProperties(JNIEnv *env)
 
     /* Current directory */
     {
+#ifdef __IOS__
+    const char *homeDir = getenv("HOME");
+    sprops.user_dir = strdup(homeDir);
+#else
         char buf[MAXPATHLEN];
         errno = 0;
         if (getcwd(buf, sizeof(buf)) == NULL) {
@@ -539,6 +543,7 @@ GetJavaProperties(JNIEnv *env)
         else {
             sprops.user_dir = strdup(buf);
         }
+#endif
     }
 
     sprops.file_separator = "/";

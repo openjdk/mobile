@@ -221,7 +221,7 @@ Java_java_io_UnixFileSystem_getLastModifiedTime0(JNIEnv *env, jobject this,
 #if defined(_AIX)
             rv =  (jlong)sb.st_mtime * 1000;
             rv += (jlong)sb.st_mtime_n / 1000000;
-#elif defined(MACOSX)
+#elif defined(MACOSX) || defined(__IOS__)
             rv  = (jlong)sb.st_mtimespec.tv_sec * 1000;
             rv += (jlong)sb.st_mtimespec.tv_nsec / 1000000;
 #else
@@ -405,7 +405,7 @@ Java_java_io_UnixFileSystem_setLastModifiedTime0(JNIEnv *env, jobject this,
 #if defined(_AIX)
             tv[0].tv_sec = sb.st_atime;
             tv[0].tv_usec = sb.st_atime_n / 1000;
-#elif defined(MACOSX)
+#elif defined(MACOSX) || defined(__IOS__)
             tv[0].tv_sec = sb.st_atimespec.tv_sec;
             tv[0].tv_usec = sb.st_atimespec.tv_nsec / 1000;
 #else
