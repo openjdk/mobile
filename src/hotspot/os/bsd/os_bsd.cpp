@@ -457,22 +457,26 @@ void os::init_system_properties_values() {
     // Found the full path to libjvm.so.
     // Now cut the path to <java_home>/jre if we can.
     *(strrchr(buf, '/')) = '\0'; // Get rid of /libjvm.so.
+#ifndef __IOS__
     pslash = strrchr(buf, '/');
     if (pslash != nullptr) {
       *pslash = '\0';            // Get rid of /{client|server|hotspot}.
     }
+#endif
     if (is_vm_statically_linked()) {
       strcat(buf, "/lib");
     }
 
     Arguments::set_dll_dir(buf);
 
+#ifndef __IOS__
     if (pslash != nullptr) {
       pslash = strrchr(buf, '/');
       if (pslash != nullptr) {
         *pslash = '\0';          // Get rid of /lib.
       }
     }
+#endif
     Arguments::set_java_home(buf);
     if (!set_boot_path('/', ':')) {
         vm_exit_during_initialization("Failed setting boot class path.", nullptr);
@@ -1689,7 +1693,11 @@ bool os::remove_stack_guard_pages(char* addr, size_t size) {
 static char* anon_mmap(char* requested_addr, size_t bytes, bool exec) {
   // MAP_FIXED is intentionally left out, to leave existing mappings intact.
   const int flags = MAP_PRIVATE | MAP_NORESERVE | MAP_ANONYMOUS
+#ifdef __IOS__
+      ;
+#else
       MACOS_ONLY(| (exec ? MAP_JIT : 0));
+#endif
 
   // Map reserved/uncommitted pages PROT_NONE so we fail early if we
   // touch an uncommitted page. Otherwise, the read/write might
