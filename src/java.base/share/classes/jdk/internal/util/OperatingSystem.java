@@ -81,6 +81,10 @@ public enum OperatingSystem {
      * The AIX Operating system.
      */
     AIX,
+    /**
+     * The iOS Operating system.
+     */
+    IOS,
     ;
 
     // The current OperatingSystem
@@ -99,7 +103,8 @@ public enum OperatingSystem {
      */
     @ForceInline
     public static boolean isMacOS() {
-        return PlatformProps.TARGET_OS_IS_MACOS;
+        // Treat iOS as macOS for compatibility with existing libraries unless specific IOS checks exist
+        return PlatformProps.TARGET_OS_IS_MACOS || current() == IOS;
     }
 
     /**
@@ -116,6 +121,13 @@ public enum OperatingSystem {
     @ForceInline
     public static boolean isAix() {
         return PlatformProps.TARGET_OS_IS_AIX;
+    }
+
+    /**
+     * {@return {@code true} if built for the iOS operating system}
+     */
+    public static boolean isIos() {
+        return current() == IOS;
     }
 
     /**
