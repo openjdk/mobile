@@ -539,6 +539,9 @@ AC_DEFUN([PLATFORM_SETUP_LEGACY_VARS_HELPER],
   if test "x$OPENJDK_$1_OS" = xios; then
     HOTSPOT_$1_OS=bsd
   fi
+  if test "x$OPENJDK_$1_OS" = xandroid; then
+    HOTSPOT_$1_OS=linux
+  fi
   AC_SUBST(HOTSPOT_$1_OS)
 
   HOTSPOT_$1_OS_TYPE=${OPENJDK_$1_OS_TYPE}
