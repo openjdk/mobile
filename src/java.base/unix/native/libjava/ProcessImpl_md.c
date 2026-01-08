@@ -582,7 +582,11 @@ spawnChild(JNIEnv *env, jobject process, ChildStuff *c, const char *helperpath) 
         }
     }
 
+#ifndef __BIONIC__
     rval = posix_spawn(&resultPid, helperpath, 0, 0, (char * const *) hlpargs, environ);
+#else
+    return -1;
+#endif
 
     if (rval != 0) {
         return -1;

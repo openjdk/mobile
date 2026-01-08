@@ -35,7 +35,9 @@
 #ifdef _WINDOWS
 #include "forbiddenFunctions_windows.hpp"
 #else
+#if !defined(__BIONIC__)
 #include "forbiddenFunctions_posix.hpp"
+#endif
 #endif
 
 // Forbid the use of various C library functions.  Some of these have os::
@@ -43,6 +45,7 @@
 // or have security concerns, either with preferred alternatives, or to be
 // avoided entirely.
 
+#if !defined(__BIONIC__)
 FORBID_IMPORTED_C_FUNCTION(char* strerror(int), noexcept, "use os::strerror");
 FORBID_IMPORTED_C_FUNCTION(char* strtok(char*, const char*), noexcept, "use strtok_r");
 
@@ -63,4 +66,5 @@ PRAGMA_DIAG_POP
 FORBID_IMPORTED_C_FUNCTION(char* strdup(const char *s), noexcept, "use os::strdup");
 FORBID_IMPORTED_C_FUNCTION(wchar_t* wcsdup(const wchar_t *s), noexcept, "don't use");
 
+#endif
 #endif // SHARE_UTILITIES_FORBIDDENFUNCTIONS_HPP

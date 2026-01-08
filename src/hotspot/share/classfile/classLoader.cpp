@@ -856,10 +856,17 @@ void ClassLoader::load_jimage_library() {
   assert(JImageOpen == nullptr, "should not load jimage library twice");
 
   if (is_vm_statically_linked()) {
+#ifndef __BIONIC__
       JImageOpen = CAST_TO_FN_PTR(JImageOpen_t, os::lookup_function("JIMAGE_Open"));
       JImageClose = CAST_TO_FN_PTR(JImageClose_t, os::lookup_function("JIMAGE_Close"));
       JImageFindResource = CAST_TO_FN_PTR(JImageFindResource_t, os::lookup_function("JIMAGE_FindResource"));
       JImageGetResource = CAST_TO_FN_PTR(JImageGetResource_t, os::lookup_function("JIMAGE_GetResource"));
+#else
+      JImageOpen = JIMAGE_Open;
+      JImageClose = JIMAGE_Close;
+      JImageFindResource = JIMAGE_FindResource;
+      JImageGetResource = JIMAGE_GetResource;
+#endif
       assert(JImageOpen != nullptr && JImageClose != nullptr &&
             JImageFindResource != nullptr && JImageGetResource != nullptr,
             "could not lookup all jimage library functions");
