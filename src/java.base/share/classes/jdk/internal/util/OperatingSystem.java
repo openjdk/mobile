@@ -59,6 +59,7 @@ import jdk.internal.vm.annotation.ForceInline;
  *          case AIX->32768;
  *          case MACOS->49152;
  *          case WINDOWS->49152;
+ *          case IOS->49152;
  *      };
  * }
  *}
@@ -103,8 +104,7 @@ public enum OperatingSystem {
      */
     @ForceInline
     public static boolean isMacOS() {
-        // Treat iOS as macOS for compatibility with existing libraries unless specific IOS checks exist
-        return PlatformProps.TARGET_OS_IS_MACOS || current() == IOS;
+        return PlatformProps.TARGET_OS_IS_MACOS;
     }
 
     /**
@@ -127,7 +127,7 @@ public enum OperatingSystem {
      * {@return {@code true} if built for the iOS operating system}
      */
     public static boolean isIos() {
-        return current() == IOS;
+        return PlatformProps.TARGET_OS_IS_IOS;
     }
 
     /**
