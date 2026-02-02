@@ -59,6 +59,7 @@ import jdk.internal.vm.annotation.ForceInline;
  *          case AIX->32768;
  *          case MACOS->49152;
  *          case WINDOWS->49152;
+ *          case IOS->49152;
  *      };
  * }
  *}
@@ -81,6 +82,10 @@ public enum OperatingSystem {
      * The AIX Operating system.
      */
     AIX,
+    /**
+     * The iOS Operating system.
+     */
+    IOS,
     ;
 
     // The current OperatingSystem
@@ -116,6 +121,13 @@ public enum OperatingSystem {
     @ForceInline
     public static boolean isAix() {
         return PlatformProps.TARGET_OS_IS_AIX;
+    }
+
+    /**
+     * {@return {@code true} if built for the iOS operating system}
+     */
+    public static boolean isIos() {
+        return PlatformProps.TARGET_OS_IS_IOS;
     }
 
     /**
