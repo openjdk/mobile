@@ -70,9 +70,11 @@ inline void* realloc(void* ptr, size_t size) { return ::realloc(ptr, size); }
 
 inline char* strdup(const char* s) { return ::strdup(s); }
 
+#ifndef __IOS__
 MACOS_AARCH64_ONLY( \
   inline void pthread_jit_write_protect_np(int enabled) { return ::pthread_jit_write_protect_np(enabled); } \
 )
+#endif
 
 END_ALLOW_FORBIDDEN_FUNCTIONS
 } // namespace permit_forbidden_function
