@@ -26,6 +26,10 @@
 #ifndef NET_UTILS_MD_H
 #define NET_UTILS_MD_H
 
+#ifdef ANDROID
+#include <netinet/in.h>
+#endif
+
 #include <netdb.h>
 #include <poll.h>
 #include <sys/socket.h>

@@ -579,7 +579,11 @@ spawnChild(JNIEnv *env, jobject process, ChildStuff *c, const char *helperpath) 
     c->fds[0] = c->fds[1] = c->fds[2] = -1;
     c->redirectErrorStream = false;
 
+#ifndef __BIONIC__
     rval = posix_spawn(&resultPid, helperpath, &file_actions, 0, (char * const *) hlpargs, environ);
+#else
+    return -1;
+#endif
 
     if (rval != 0) {
         return -1;

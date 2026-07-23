@@ -38,8 +38,10 @@
 #include <sys/param.h>
 #include <sys/mount.h>
 #include <mach/mach.h>
+#ifndef __IOS__
 #include <sys/proc_info.h>
 #include <libproc.h>
+#endif
 #endif
 #elif !defined(_AIX)
 #include <sys/swap.h>
@@ -271,6 +273,7 @@ Java_com_sun_management_internal_OperatingSystemImpl_getOpenFileDescriptorCount0
   (JNIEnv *env, jobject mbean)
 {
 #ifdef __APPLE__
+#ifndef __IOS__
     // This code is influenced by the darwin lsof source
     pid_t my_pid;
     struct proc_bsdinfo bsdinfo;
@@ -314,6 +317,9 @@ Java_com_sun_management_internal_OperatingSystemImpl_getOpenFileDescriptorCount0
     free(fds);
 
     return nfiles;
+#else // IOS
+    return -1;
+#endif
 #elif defined(_ALLBSD_SOURCE)
     /*
      * XXXBSD: there's no way available to do it in FreeBSD, AFAIK.

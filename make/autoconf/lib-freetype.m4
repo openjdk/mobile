@@ -105,6 +105,8 @@ AC_DEFUN_ONCE([LIB_SETUP_FREETYPE],
   FREETYPE_TO_USE=bundled
   if test "x$OPENJDK_TARGET_OS" != "xwindows" && \
       test "x$OPENJDK_TARGET_OS" != "xmacosx" && \
+      test "x$OPENJDK_TARGET_OS" != "xandroid" && \
+      test "x$OPENJDK_TARGET_OS" != "xios" && \
       test "x$OPENJDK_TARGET_OS" != "xaix"; then
     FREETYPE_TO_USE=system
   fi
