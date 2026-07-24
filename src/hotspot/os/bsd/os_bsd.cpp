@@ -111,7 +111,9 @@
 #endif
 
 #ifdef __APPLE__
+#ifndef __IOS__
   #include <libproc.h>
+#endif
   #include <mach/task_info.h>
   #include <mach-o/dyld.h>
 
@@ -2721,7 +2723,7 @@ bool os::pd_dll_unload(void* libhandle, char* ebuf, int ebuflen) {
 } // end: os::pd_dll_unload()
 
 void os::print_open_file_descriptors(outputStream* st) {
-#ifdef __APPLE__
+#if defined(__APPLE__) && !defined(__IOS__)
   char buf[1024 * sizeof(struct proc_fdinfo)];
   os::Bsd::print_open_file_descriptors(st, buf, sizeof(buf));
 #else
@@ -2730,7 +2732,7 @@ void os::print_open_file_descriptors(outputStream* st) {
 }
 
 void os::Bsd::print_open_file_descriptors(outputStream* st, char* buf, size_t buflen) {
-#ifdef __APPLE__
+#if defined(__APPLE__) && !defined(__IOS__)
   pid_t my_pid;
 
   // ensure the scratch buffer is big enough for at least one FD info struct
