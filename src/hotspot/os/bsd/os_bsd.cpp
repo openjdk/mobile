@@ -111,7 +111,9 @@
 #endif
 
 #ifdef __APPLE__
+#ifndef __IOS__
   #include <libproc.h>
+#endif
   #include <mach/task_info.h>
   #include <mach-o/dyld.h>
 
@@ -495,22 +497,26 @@ void os::init_system_properties_values() {
     // Found the full path to libjvm.so.
     // Now cut the path to <java_home>/jre if we can.
     *(strrchr(buf, '/')) = '\0'; // Get rid of /libjvm.so.
+#ifndef __IOS__
     pslash = strrchr(buf, '/');
     if (pslash != nullptr) {
       *pslash = '\0';            // Get rid of /{client|server|hotspot}.
     }
+#endif
     if (is_vm_statically_linked()) {
       strcat(buf, "/lib");
     }
 
     Arguments::set_dll_dir(buf);
 
+#ifndef __IOS__
     if (pslash != nullptr) {
       pslash = strrchr(buf, '/');
       if (pslash != nullptr) {
         *pslash = '\0';          // Get rid of /lib.
       }
     }
+#endif
     Arguments::set_java_home(buf);
     if (!set_boot_path('/', ':')) {
         vm_exit_during_initialization("Failed setting boot class path.", nullptr);
@@ -1807,7 +1813,11 @@ void os::remove_stack_guard_pages(char* addr, size_t size) {
 static char* anon_mmap(char* requested_addr, size_t bytes, bool exec) {
   // MAP_FIXED is intentionally left out, to leave existing mappings intact.
   const int flags = MAP_PRIVATE | MAP_NORESERVE | MAP_ANONYMOUS
+#ifdef __IOS__
+      ;
+#else
       MACOS_ONLY(| (exec ? MAP_JIT : 0));
+#endif
 
   // Map reserved/uncommitted pages PROT_NONE so we fail early if we
   // touch an uncommitted page. Otherwise, the read/write might
@@ -2713,7 +2723,7 @@ bool os::pd_dll_unload(void* libhandle, char* ebuf, int ebuflen) {
 } // end: os::pd_dll_unload()
 
 void os::print_open_file_descriptors(outputStream* st) {
-#ifdef __APPLE__
+#if defined(__APPLE__) && !defined(__IOS__)
   char buf[1024 * sizeof(struct proc_fdinfo)];
   os::Bsd::print_open_file_descriptors(st, buf, sizeof(buf));
 #else
@@ -2722,7 +2732,7 @@ void os::print_open_file_descriptors(outputStream* st) {
 }
 
 void os::Bsd::print_open_file_descriptors(outputStream* st, char* buf, size_t buflen) {
-#ifdef __APPLE__
+#if defined(__APPLE__) && !defined(__IOS__)
   pid_t my_pid;
 
   // ensure the scratch buffer is big enough for at least one FD info struct

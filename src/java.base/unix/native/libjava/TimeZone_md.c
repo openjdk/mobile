@@ -41,7 +41,7 @@
 #include "TimeZone_md.h"
 #include "path_util.h"
 
-#if defined(__linux__) || defined(MACOSX)
+#if defined(__linux__) || defined(MACOSX) || defined(__IOS__)
 static const char *ZONEINFO_DIR = "/usr/share/zoneinfo";
 static const char *DEFAULT_ZONEINFO_FILE = "/etc/localtime";
 static const char popularZones[][4] = {"UTC", "GMT"};

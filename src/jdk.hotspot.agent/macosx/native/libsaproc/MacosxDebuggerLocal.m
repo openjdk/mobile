@@ -23,7 +23,11 @@
  *
  */
 
+#ifndef __IOS__
 #include <objc/objc-runtime.h>
+#else
+#include <objc/message.h>
+#endif
 #import <Foundation/Foundation.h>
 
 #include <jni.h>
@@ -40,7 +44,9 @@
 #import <limits.h>
 #import <errno.h>
 #import <sys/types.h>
+#ifndef __IOS__
 #import <sys/ptrace.h>
+#endif
 #include "libproc_impl.h"
 
 #if defined(amd64)
@@ -839,6 +845,7 @@ Java_sun_jvm_hotspot_debugger_macosx_MacOSXDebuggerLocal_translateTID0(
 
 // attach to a process/thread specified by "pid"
 static bool ptrace_attach(pid_t pid) {
+#ifndef __IOS__
   errno = 0;
   ptrace(PT_ATTACHEXC, pid, 0, 0);
 
@@ -846,6 +853,7 @@ static bool ptrace_attach(pid_t pid) {
     print_error("ptrace_attach: ptrace(PT_ATTACHEXC,...) failed: %s", strerror(errno));
     return false;
   }
+#endif
   return true;
 }
 
@@ -1210,12 +1218,14 @@ Java_sun_jvm_hotspot_debugger_bsd_BsdDebuggerLocal_detach0(
     detach_cleanup(gTask, env, this_obj, true);
   }
   else {
+#ifndef __IOS__
     errno = 0;
     ptrace(PT_DETACH, pid, (caddr_t)1, 0);
     if (errno != 0) {
       print_error("detach: ptrace(PT_DETACH,...) failed: %s", strerror(errno));
       detach_cleanup(gTask, env, this_obj, true);
     }
+#endif
   }
 
   // reply to the previous exception message

@@ -460,6 +460,7 @@ typedef enum {TO_UTF8, FROM_UTF8} conv_direction;
  * NOTE: outputBufSize includes the space for the trailing 0.
  */
 static int iconvConvert(conv_direction drn, char *bytes, size_t len, char *output, size_t outputBufSize) {
+#ifndef __BIONIC__
 
     static char *codeset = 0;
     iconv_t func;
@@ -530,6 +531,9 @@ just_copy_bytes:
     (void)memcpy(output, bytes, len);
     output[len] = 0;
     return len;
+#else
+    return -1;
+#endif
  }
 
 /*

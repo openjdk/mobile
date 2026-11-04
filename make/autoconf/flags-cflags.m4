@@ -83,7 +83,7 @@ AC_DEFUN([FLAGS_SETUP_DEBUG_SYMBOLS],
     ])
 
   # Debug symbols
-  if test "x$TOOLCHAIN_TYPE" = xgcc; then
+  if test "x$TOOLCHAIN_TYPE" = xgcc || test "x$OPENJDK_TARGET_OS" = xandroid; then
     if test "x$ALLOW_ABSOLUTE_PATHS_IN_OUTPUT" = "xfalse"; then
       # Check if compiler supports -fdebug-prefix-map. If so, use that to make
       # the debug symbol paths resolve to paths relative to the workspace root.
@@ -475,6 +475,12 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
     CFLAGS_OS_DEF_JDK="-D_ALLBSD_SOURCE"
   elif test "x$OPENJDK_TARGET_OS" = xwindows; then
     CFLAGS_OS_DEF_JVM="-D_WINDOWS -DWIN32 -D_JNI_IMPLEMENTATION_"
+  elif test "x$OPENJDK_TARGET_OS" = xandroid; then
+    CFLAGS_OS_DEF_JVM="-target aarch64-linux-android32 -DLINUX -D_ALLBSD_SOURCE -DANDROID"
+    CFLAGS_OS_DEF_JDK="-target aarch64-linux-android32 -DLINUX -D__USE_BSD"
+  elif test "x$OPENJDK_TARGET_OS" = xios; then
+    CFLAGS_OS_DEF_JVM="-D_ALLBSD_SOURCE -D__IOS__ -D_XOPEN_SOURCE"
+    CFLAGS_OS_DEF_JDK="-D_ALLBSD_SOURCE -D__IOS__"
   fi
 
   CFLAGS_OS_DEF_JDK="$CFLAGS_OS_DEF_JDK -D$OPENJDK_TARGET_OS_UPPERCASE"

@@ -44,6 +44,8 @@ AC_DEFUN_ONCE([LIB_DETERMINE_DEPENDENCIES],
   # Check if X11 is needed
   if test "x$OPENJDK_TARGET_OS" = xwindows ||
      test "x$OPENJDK_TARGET_OS" = xmacosx ||
+     test "x$OPENJDK_TARGET_OS" = xandroid ||
+     test "x$OPENJDK_TARGET_OS" = xios ||
      test "x$ENABLE_HEADLESS_ONLY" = xtrue; then
     NEEDS_LIB_X11=false
   else
@@ -52,7 +54,7 @@ AC_DEFUN_ONCE([LIB_DETERMINE_DEPENDENCIES],
   fi
 
   # Check if fontconfig is needed
-  if test "x$OPENJDK_TARGET_OS" = xwindows || test "x$OPENJDK_TARGET_OS" = xmacosx; then
+  if test "x$OPENJDK_TARGET_OS" = xwindows || test "x$OPENJDK_TARGET_OS" = xmacosx || test "x$OPENJDK_TARGET_OS" = xios; then
     # No fontconfig support on windows or macosx
     NEEDS_LIB_FONTCONFIG=false
   else

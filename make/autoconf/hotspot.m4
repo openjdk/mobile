@@ -54,7 +54,11 @@ AC_DEFUN_ONCE([HOTSPOT_SETUP_JVM_VARIANTS],
       zero custom) @<:@server@:>@])])
 
   if test "x$with_jvm_variants" = x; then
-    with_jvm_variants="server"
+    if test "x$OPENJDK_TARGET_OS" = xios; then
+      with_jvm_variants="zero"
+    else
+      with_jvm_variants="server"
+    fi
   fi
   JVM_VARIANTS_OPT="$with_jvm_variants"
 
